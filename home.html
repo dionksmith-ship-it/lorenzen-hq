@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>2 Lorenzen HQ — Home</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Century Gothic','Futura','Trebuchet MS',sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh;font-size:15px;}
+#hdr{position:sticky;top:0;z-index:200;background:#1A1D27;border-bottom:1px solid #2D3748;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+#hdr h1{font-size:17px;font-weight:800;}
+#hdr h1 span{color:#68D391;}
+.sub{font-size:11px;color:#718096;margin-top:2px;}
+#tabs{position:sticky;top:57px;z-index:199;background:#1A1D27;border-bottom:1px solid #2D3748;display:flex;overflow-x:auto;padding:0 16px;box-shadow:0 2px 4px rgba(0,0,0,0.4);scrollbar-width:none;}
+#tabs::-webkit-scrollbar{display:none;}
+.tb{padding:11px 16px;font-size:12px;font-weight:400;color:#718096;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;}
+.tb.on{color:#68D391;font-weight:700;border-bottom-color:#68D391;}
+#banner{display:none;padding:10px 20px;text-align:center;font-weight:700;font-size:13px;}
+#main{padding:20px;max-width:1100px;margin:0 auto;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.nav a{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;}
+.nav a.active{background:#68D391;color:#0F1117;}
+.card{background:#1A1D27;border:1px solid #2D3748;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#20253A;border-bottom:1px solid #2D3748;}
+.ct{font-weight:700;font-size:11px;letter-spacing:0.8px;text-transform:uppercase;color:#A0AEC0;}
+.cb{padding:14px 18px;}
+.chip{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-surf{background:#20253A;color:#A0AEC0;}
+.btn-green{background:#68D391;color:#0F1117;}
+input,select{background:#0F1117;border:1px solid #2D3748;border-radius:6px;color:#E2E8F0;padding:7px 10px;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;width:100%;}
+.row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #1E2333;flex-wrap:wrap;}
+.row:last-child{border-bottom:none;}
+.pbar{height:6px;background:#2D3748;border-radius:3px;overflow:hidden;margin:8px 0;}
+.pfill{height:100%;border-radius:3px;transition:width 0.3s;}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;}
+.modal{background:#1A1D27;border:1px solid #2D3748;border-radius:12px;padding:24px;max-width:380px;width:90%;text-align:center;}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div>
+    <h1>2 Lorenzen <span>HQ</span> <span style="font-size:12px;color:#718096;font-weight:400">Home</span></h1>
+    <div class="sub" id="dt"></div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-green btn-sm" onclick="save()">💾 Save</button>
+    <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+  </div>
+</div>
+<div id="banner"></div>
+<div id="tabs">
+  <button class="tb on" onclick="go('chores',this)">🧹 Chores</button>
+  <button class="tb" onclick="go('groceries',this)">🛒 Groceries</button>
+</div>
+<div id="main">
+  <div class="nav">
+    <a href="index.html">🏠 Main</a>
+    <a href="budget.html">💰 Budget</a>
+    <a href="fleet.html">🚗 Fleet</a>
+    <a href="wealth.html">📈 Wealth</a>
+    <a href="home.html" class="active">🏡 Home</a>
+  </div>
+  <div id="content"></div>
+</div>
+<div id="modal" class="modal-bg" style="display:none">
+  <div class="modal">
+    <div style="font-size:16px;font-weight:700;margin-bottom:10px">Assign chore?</div>
+    <div id="modal-text" style="font-size:14px;color:#A0AEC0;margin-bottom:16px"></div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-green" onclick="doAssign()">✅ Confirm</button>
+      <button class="btn btn-surf" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var PCOL={Dion:'#63B3ED',Kingston:'#ED8936',Jonty:'#68D391',All:'#B794F4'};
+var CHORE_CATS={
+  'Bathroom & Toilet':['Bathrooms','Clean Toilet','Replace Toilet Rolls'],
+  'Kitchen':['Empty Dishwasher','Defrost Meat','Cook Dinner','Fill Dishwasher','Wash Pots & Pans','Wipe Kitchen Benches & Sink'],
+  'Lounge':['Vacuuming','Water Plants (inside)'],
+  'General Inside':['Empty Rubbish Bin','Recycling Inside to Bins','Recycling from Downstairs','Recycling to Kerb','Retrieve & Put Away Recycling Bins'],
+  'Car Working Area':['Put Away Tools Used','Tidy Area Used'],
+  'Deck':['Deck Tidy','Deck Sweep/Wash'],
+  'Outside':['Spray Weeds','Water Plants (outside)']
+};
+var CHORE_FREQ={
+  'Bathrooms':'Weekly','Clean Toilet':'Weekly','Replace Toilet Rolls':'Daily',
+  'Empty Dishwasher':'Daily','Defrost Meat':'Daily','Cook Dinner':'Daily','Fill Dishwasher':'Daily','Wash Pots & Pans':'Daily','Wipe Kitchen Benches & Sink':'Daily',
+  'Vacuuming':'Weekly','Water Plants (inside)':'Weekly',
+  'Empty Rubbish Bin':'Daily','Recycling Inside to Bins':'Daily','Recycling from Downstairs':'Weekly','Recycling to Kerb':'Weekly','Retrieve & Put Away Recycling Bins':'Weekly',
+  'Put Away Tools Used':'Daily','Tidy Area Used':'Daily',
+  'Deck Tidy':'Weekly','Deck Sweep/Wash':'Monthly',
+  'Spray Weeds':'Monthly','Water Plants (outside)':'Weekly'
+};
+var GROCERIES=[
+  {id:1,name:'Bananas (Dole Bobby)',cat:'Fruit & Veg',store:'PAK',pPrice:3.99,wPrice:4.50,qty:2,unit:'pk'},
+  {id:2,name:'Apples',cat:'Fruit & Veg',store:'BOTH',pPrice:4.00,wPrice:4.50,qty:1,unit:'bag'},
+  {id:3,name:'Potatoes',cat:'Fruit & Veg',store:'PAK',pPrice:5.00,wPrice:null,qty:1,unit:'2kg',pkgG:2000},
+  {id:4,name:'Onions',cat:'Fruit & Veg',store:'PAK',pPrice:3.00,wPrice:null,qty:1,unit:'bag'},
+  {id:5,name:'Skinless Chicken Breast',cat:'Meat',store:'BOTH',pPrice:13.99,wPrice:14.99,qty:1.5,unit:'kg',pkgG:1000},
+  {id:6,name:'NZ Beef Mince',cat:'Meat',store:'BOTH',pPrice:18.99,wPrice:19.99,qty:0.5,unit:'kg',pkgG:1000},
+  {id:7,name:'Pams Value Milk',cat:'Dairy',store:'PAK',pPrice:7.12,wPrice:null,qty:1,unit:'3L',pkgG:3000},
+  {id:8,name:'Pams Colby Cheese',cat:'Dairy',store:'BOTH',pPrice:12.65,wPrice:14.00,qty:1,unit:'1kg',pkgG:1000},
+  {id:9,name:'Perfect Italiano Parmesan',cat:'Dairy',store:'BOTH',pPrice:5.69,wPrice:5.99,qty:1,unit:'125g',pkgG:125},
+  {id:10,name:"Fresh'n Fruity Yoghurt Mango",cat:'Dairy',store:'PAK',pPrice:6.79,wPrice:null,qty:1,unit:'1kg',pkgG:1000},
+  {id:11,name:"Fresh'n Fruity Yoghurt Strawberry",cat:'Dairy',store:'PAK',pPrice:6.79,wPrice:null,qty:1,unit:'1kg',pkgG:1000},
+  {id:12,name:"North's Multigrain Toast Bread",cat:'Bread',store:'PAK',pPrice:2.56,wPrice:null,qty:1,unit:'600g'},
+  {id:13,name:'Plain Round Rolls',cat:'Bread',store:'PAK',pPrice:5.00,wPrice:null,qty:1,unit:'12pk'},
+  {id:14,name:'Pams Spaghetti Pasta',cat:'Pantry',store:'PAK',pPrice:1.59,wPrice:null,qty:1,unit:'500g',pkgG:500},
+  {id:15,name:'Rice',cat:'Pantry',store:'PAK',pPrice:12.00,wPrice:null,qty:1,unit:'5kg',pkgG:5000},
+  {id:16,name:'Pams Diced Tomatoes Italian',cat:'Pantry',store:'PAK',pPrice:1.29,wPrice:null,qty:2,unit:'400g'},
+  {id:17,name:'Pams Diced Tomatoes Garlic+Oregano',cat:'Pantry',store:'PAK',pPrice:1.29,wPrice:null,qty:2,unit:'400g'},
+  {id:18,name:'Pams Fruit Salad in Syrup',cat:'Pantry',store:'PAK',pPrice:1.59,wPrice:null,qty:2,unit:'410g'},
+  {id:19,name:"Arnott's Shapes Flame Grilled",cat:'Snacks',store:'BOTH',pPrice:2.50,wPrice:3.00,qty:2,unit:'130g'},
+  {id:20,name:"Arnott's Shapes Cheese & Bacon",cat:'Snacks',store:'BOTH',pPrice:2.50,wPrice:3.00,qty:2,unit:'180g'},
+  {id:21,name:'Tasti Choc Apricot Nut Bar',cat:'Snacks',store:'PAK',pPrice:4.59,wPrice:null,qty:1,unit:'6x35g'},
+  {id:22,name:'Tasti Dark Choc Cranberry Bar',cat:'Snacks',store:'PAK',pPrice:4.59,wPrice:null,qty:2,unit:'6x35g'},
+  {id:23,name:'Pams 3Ply Toilet Tissues',cat:'Household',store:'PAK',pPrice:6.29,wPrice:null,qty:1,unit:'8pk'},
+  {id:24,name:'Pams White Paper Towels',cat:'Household',store:'PAK',pPrice:2.19,wPrice:null,qty:1,unit:'2x60sh'},
+  {id:25,name:'Surf Tropical Laundry Powder',cat:'Household',store:'PAK',pPrice:4.29,wPrice:null,qty:1,unit:'1kg'},
+  {id:26,name:'Dishwashing Liquid',cat:'Household',store:'PAK',pPrice:4.00,wPrice:null,qty:1,unit:'bottle'},
+  {id:27,name:"Natures Organics Conditioner",cat:'Personal',store:'PAK',pPrice:2.99,wPrice:null,qty:1,unit:'500ml'},
+  {id:28,name:'Reach Soft Toothbrush',cat:'Personal',store:'PAK',pPrice:2.69,wPrice:null,qty:1,unit:'pk'}
+];
+
+var cur='chores',stimer=null;
+var ticks={};var assigned={};var weekOff=0;var selDay=(new Date().getDay()+6)%7;
+var freqFilter='All';var copyFrom=null;var pendingAssign=null;
+var glist={};var storeFilter='BOTH';
+
+function td(){return new Date().toISOString().split('T')[0];}
+function chip(l,c){return '<span class="chip" style="background:'+c+'22;color:'+c+'">'+l+'</span>';}
+function save(){try{localStorage.setItem('lhq-home',JSON.stringify({ticks,assigned,glist,weekOff,savedAt:new Date().toISOString()}));flash('💾 Saved');}catch(e){flash('Save failed','#E53E3E');}}
+function sync(){try{var d=localStorage.getItem('lhq-home');if(d){var p=JSON.parse(d);if(p.ticks)ticks=p.ticks;if(p.assigned)assigned=p.assigned;if(p.glist)glist=p.glist;flash('✅ Loaded');render();}else flash('No data','#ED8936');}catch(e){flash('Load failed','#E53E3E');}}
+function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
+function flash(msg,col){var b=document.getElementById('banner');b.textContent=msg;b.style.background=col||'#68D391';b.style.color='#0F1117';b.style.display='block';setTimeout(function(){b.style.display='none';},3000);}
+
+function getWkStart(){var a=new Date();a.setDate(a.getDate()-((a.getDay()+6)%7)+weekOff*7);return a.toISOString().split('T')[0];}
+function wk(){return getWkStart();}
+function tKey(c,d){return wk()+'_d'+d+'_'+c;}
+function aKey(c,d){return wk()+'_d'+d+'_a_'+c;}
+
+function toggleTick(chore,day){ticks[tKey(chore,day)]=!ticks[tKey(chore,day)];sched();render();}
+function doAssign(){if(!pendingAssign)return;assigned[aKey(pendingAssign.chore,pendingAssign.day)]=pendingAssign.person;pendingAssign=null;closeModal();sched();render();}
+function closeModal(){document.getElementById('modal').style.display='none';pendingAssign=null;}
+function confirmAssign(chore,day,person){pendingAssign={chore,day,person};document.getElementById('modal-text').innerHTML='Assign <strong style="color:#E2E8F0">'+chore+'</strong> to <strong style="color:'+PCOL[person]+'">'+person+'</strong> on '+DAYS[day]+'?';document.getElementById('modal').style.display='flex';}
+
+function copyDay(from,to){
+  Object.keys(CHORE_CATS).forEach(function(cat){CHORE_CATS[cat].forEach(function(c){var a=assigned[aKey(c,from)];if(a)assigned[aKey(c,to)]=a;});});
+  copyFrom=null;sched();render();
+}
+
+var CHORE_LIST=Object.values(CHORE_CATS).flat();
+
+function renderChores(){
+  var todayIdx=(new Date().getDay()+6)%7;
+  var wkStart=new Date();wkStart.setDate(wkStart.getDate()-((wkStart.getDay()+6)%7)+weekOff*7);
+  var wkLabel=wkStart.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
+  var dayLabel=function(i){var d=new Date(wkStart);d.setDate(d.getDate()+i);return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});};
+
+  var dayFilter=CHORE_LIST.filter(function(c){return freqFilter==='All'||(CHORE_FREQ[c]||'Daily')===freqFilter;});
+  var done=dayFilter.filter(function(c){return ticks[tKey(c,selDay)];}).length;
+  var pct=dayFilter.length>0?Math.round(done/dayFilter.length*100):0;
+
+  var weekNav='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">'+
+    '<button class="btn btn-surf btn-sm" onclick="weekOff--;render()">◀ Prev</button>'+
+    '<span style="flex:1;text-align:center;font-size:13px">Week of '+wkLabel+'</span>'+
+    '<button class="btn btn-surf btn-sm" onclick="weekOff++;render()">Next ▶</button>'+
+    '<button class="btn btn-surf btn-sm" onclick="weekOff=0;render()">Today</button></div>';
+
+  var dayBtns='<div style="display:flex;gap:4px;margin-bottom:12px;overflow-x:auto">'+
+    DAYS.map(function(d,i){
+      var dc=dayFilter.filter(function(c){return ticks[tKey(c,i)];}).length;
+      var isTod=i===todayIdx&&weekOff===0;
+      return '<button onclick="selDay='+i+';render()" style="flex:1;padding:8px 4px;border-radius:8px;border:none;cursor:pointer;min-width:44px;background:'+(selDay===i?'#63B3ED':isTod?'rgba(99,179,237,0.15)':'#20253A')+';color:'+(selDay===i?'#0F1117':isTod?'#63B3ED':'#A0AEC0')+';font-family:inherit;font-weight:'+(selDay===i?700:400)+'">'+
+        '<div style="font-size:11px">'+d+'</div><div style="font-size:10px">'+dayLabel(i)+'</div><div style="font-size:10px;margin-top:2px">'+dc+'/'+dayFilter.length+'</div></button>';
+    }).join('')+'</div>';
+
+  var freqBtns='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+
+    ['All','Daily','Weekly','Monthly'].map(function(f){return '<button class="btn btn-sm" style="background:'+(freqFilter===f?'#ECC94B':'#20253A')+';color:'+(freqFilter===f?'#0F1117':'#A0AEC0')+'" onclick="freqFilter=\''+f+'\';render()">'+f+'</button>';}).join('')+'</div>';
+
+  var progress='<div class="card" style="padding:10px 18px;margin-bottom:12px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+      '<span style="font-size:13px">'+DAYS[selDay]+' — '+dayLabel(selDay)+'</span>'+
+      '<span style="font-weight:700;color:'+(done===dayFilter.length?'#68D391':'#ECC94B')+'">'+done+'/'+dayFilter.length+' done</span></div>'+
+    '<div class="pbar"><div class="pfill" style="width:'+pct+'%;background:'+(done===dayFilter.length?'#68D391':'#ECC94B')+'"></div></div></div>';
+
+  var copyBtns='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">'+
+    '<button class="btn btn-sm" style="background:'+(copyFrom===selDay?'#ED8936':'#20253A')+';color:'+(copyFrom===selDay?'#0F1117':'#A0AEC0')+'" onclick="copyFrom=copyFrom==='+selDay+'?null:'+selDay+';render()">'+(copyFrom===selDay?'✕ Cancel':'📋 Copy this day')+'</button>'+
+    (copyFrom!==null&&copyFrom!==selDay?'<button class="btn btn-green btn-sm" onclick="copyDay('+copyFrom+','+selDay+')">✅ Paste from '+DAYS[copyFrom]+'</button>':'')+
+    (copyFrom!==null&&copyFrom!==selDay?'<span style="font-size:12px;color:#718096">Select another day to paste into</span>':'')+
+  '</div>';
+
+  var choreSections=Object.keys(CHORE_CATS).map(function(cat){
+    var chores=CHORE_CATS[cat].filter(function(c){return freqFilter==='All'||(CHORE_FREQ[c]||'Daily')===freqFilter;});
+    if(!chores.length)return '';
+    var rows=chores.map(function(chore){
+      var done2=!!ticks[tKey(chore,selDay)];
+      var person=assigned[aKey(chore,selDay)];
+      var pc=person?PCOL[person]:'#2D3748';
+      return '<div class="row" style="opacity:'+(done2?0.55:1)+';border-left:3px solid '+pc+';padding-left:10px">'+
+        '<span style="font-size:18px;cursor:pointer;flex-shrink:0" onclick="toggleTick(\''+chore.replace(/'/g,"\\'").replace(/,/g,"\\,")+'\','+selDay+')">'+(done2?'✅':'⬜')+'</span>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;text-decoration:'+(done2?'line-through':'none')+';color:'+(done2?'#718096':'#E2E8F0')+'">'+chore+'</div>'+
+          '<div style="display:flex;gap:6px;margin-top:2px;flex-wrap:wrap">'+chip(CHORE_FREQ[chore]||'Daily','#718096')+(person?chip(person,PCOL[person]):'')+'</div>'+
+        '</div>'+
+        '<select onchange="if(this.value)confirmAssign(\''+chore.replace(/'/g,"\\'").replace(/,/g,"\\,")+'\','+selDay+',this.value);this.value=\'\'" style="width:90px;font-size:12px"><option value="">Assign...</option><option>Dion</option><option>Kingston</option><option>Jonty</option><option>All</option></select>'+
+        '</div>';
+    }).join('');
+    return '<div class="card"><div class="ch"><span class="ct">'+cat+'</span></div><div class="cb">'+rows+'</div></div>';
+  }).join('');
+
+  document.getElementById('content').innerHTML=weekNav+dayBtns+freqBtns+progress+copyBtns+choreSections;
+}
+
+function renderGroceries(){
+  var cats=[...new Set(GROCERIES.map(function(g){return g.cat;}))];
+  var items=GROCERIES.filter(function(g){return storeFilter==='BOTH'||(storeFilter==='PAK'&&g.store!=='WOOL')||(storeFilter==='WOOL'&&g.store!=='PAK');});
+  var listItems=GROCERIES.filter(function(g){return glist[g.id];});
+  var totalEst=listItems.reduce(function(s,g){var bp=g.pPrice&&g.wPrice?Math.min(g.pPrice,g.wPrice):g.pPrice||g.wPrice||0;return s+(bp*g.qty);},0);
+
+  function puStr(price,pkgG){if(!price||!pkgG)return '';if(pkgG>=1000)return fm(price/(pkgG/1000))+'/kg';if(pkgG>=100)return fm(price/pkgG*100)+'/100g';return '';}
+  function bestStore(g){if(!g.pPrice)return {store:'Woolworths',price:g.wPrice,save:0};if(!g.wPrice)return {store:"PAK'nSave",price:g.pPrice,save:0};return g.pPrice<=g.wPrice?{store:"PAK'nSave",price:g.pPrice,save:g.wPrice-g.pPrice}:{store:'Woolworths',price:g.wPrice,save:g.pPrice-g.wPrice};}
+
+  var storeCtrl='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">'+
+    '<span style="font-size:13px;color:#A0AEC0">Store:</span>'+
+    ["BOTH","PAK","WOOL"].map(function(s,i){var lbl=["Both","PAK'nSave","Woolworths"][i];return '<button class="btn btn-sm" style="background:'+(storeFilter===s?'#68D391':'#20253A')+';color:'+(storeFilter===s?'#0F1117':'#A0AEC0')+'" onclick="storeFilter=\''+s+'\';render()">'+lbl+'</button>';}).join('')+
+  '</div>';
+
+  var summary='<div class="card" style="padding:10px 18px;margin-bottom:14px;border-top:3px solid #68D391">'+
+    '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">'+
+      '<span style="font-size:11px;color:#718096">LIST </span><span style="font-weight:800;color:#68D391;font-size:16px">'+listItems.length+' items</span>'+
+      '<span style="font-size:11px;color:#718096">EST. TOTAL </span><span style="font-weight:800;color:#ECC94B;font-size:16px">'+fm(totalEst)+'</span>'+
+      '<button class="btn btn-surf btn-sm" onclick="glist={};sched();render()" style="margin-left:auto">Clear all</button>'+
+    '</div></div>';
+
+  var byCat=items.reduce(function(acc,g){if(!acc[g.cat])acc[g.cat]=[];acc[g.cat].push(g);return acc;},{});
+  var catCards=Object.keys(byCat).map(function(cat){
+    var inList=byCat[cat].filter(function(g){return glist[g.id];}).length;
+    var rows=byCat[cat].map(function(g){
+      var bp=bestStore(g);var pu=puStr(bp.price,g.pkgG);var inL=!!glist[g.id];
+      return '<div class="row" style="opacity:'+(inL?0.6:1)+'">'+
+        '<span style="font-size:18px;cursor:pointer;flex-shrink:0" onclick="glist['+g.id+']=!glist['+g.id+'];sched();render()">'+(inL?'✅':'⬜')+'</span>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;text-decoration:'+(inL?'line-through':'none')+'">'+g.name+'</div>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px">'+
+            chip(g.qty+' '+g.unit,'#718096')+
+            (g.store==='PAK'||g.store==='BOTH'?chip("PAK'nSave",'#ED8936'):'')+
+            (g.store==='WOOL'||g.store==='BOTH'?chip('Woolworths','#68D391'):'')+
+            '<span style="font-size:11px;font-weight:700;color:#ECC94B">'+fm(bp.price)+'</span>'+
+            (pu?'<span style="font-size:11px;color:#A0AEC0">'+pu+'</span>':'')+
+            (bp.save>0?chip('Save '+fm(bp.save)+' at '+bp.store,'#68D391'):'')+
+          '</div>'+
+        '</div>'+
+        '</div>';
+    }).join('');
+    return '<div class="card"><div class="ch"><span class="ct">'+cat+'</span>'+chip(inList+'/'+byCat[cat].length+' in list','#63B3ED')+'</div><div class="cb">'+rows+'</div></div>';
+  }).join('');
+
+  document.getElementById('content').innerHTML=storeCtrl+summary+catCards;
+}
+
+function fm(n){return '$'+(parseFloat(n)||0).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function render(){if(cur==='chores')renderChores();else renderGroceries();}
+function go(tab,btn){cur=tab;document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');render();}
+
+document.getElementById('dt').textContent=new Date().toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+try{var d=localStorage.getItem('lhq-home');if(d){var p=JSON.parse(d);if(p.ticks)ticks=p.ticks;if(p.assigned)assigned=p.assigned;if(p.glist)glist=p.glist;}}catch(e){}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>2 Lorenzen HQ — Budget</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Century Gothic','Futura','Trebuchet MS',sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh;font-size:15px;}
+#hdr{position:sticky;top:0;z-index:200;background:#1A1D27;border-bottom:1px solid #2D3748;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+#hdr h1{font-size:17px;font-weight:800;}
+#hdr h1 span{color:#68D391;}
+.sub{font-size:11px;color:#718096;margin-top:2px;}
+#tabs{position:sticky;top:57px;z-index:199;background:#1A1D27;border-bottom:1px solid #2D3748;display:flex;overflow-x:auto;padding:0 16px;box-shadow:0 2px 4px rgba(0,0,0,0.4);scrollbar-width:none;}
+#tabs::-webkit-scrollbar{display:none;}
+.tb{padding:11px 16px;font-size:12px;font-weight:400;color:#718096;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;}
+.tb.on{color:#68D391;font-weight:700;border-bottom-color:#68D391;}
+#banner{display:none;padding:10px 20px;text-align:center;font-weight:700;font-size:13px;}
+#main{padding:20px;max-width:1100px;margin:0 auto;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.nav a{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;}
+.nav a.active{background:#68D391;color:#0F1117;}
+.card{background:#1A1D27;border:1px solid #2D3748;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#20253A;border-bottom:1px solid #2D3748;}
+.ct{font-weight:700;font-size:11px;letter-spacing:0.8px;text-transform:uppercase;color:#A0AEC0;}
+.cb{padding:14px 18px;}
+.chip{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-green{background:#68D391;color:#0F1117;}
+.btn-blue{background:#63B3ED;color:#0F1117;}
+.btn-surf{background:#20253A;color:#A0AEC0;}
+.btn-red{background:rgba(229,62,62,0.15);color:#E53E3E;}
+input,select{background:#0F1117;border:1px solid #2D3748;border-radius:6px;color:#E2E8F0;padding:7px 10px;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;}
+input:focus,select:focus{border-color:#68D391;}
+.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #1E2333;flex-wrap:wrap;}
+.row:last-child{border-bottom:none;}
+.pbar{height:8px;background:#2D3748;border-radius:4px;overflow:hidden;margin:8px 0;}
+.pfill{height:100%;border-radius:4px;transition:width 0.3s;}
+.sgrid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.scard{flex:1 1 120px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:12px;text-align:center;}
+.sl{font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.sv{font-size:17px;font-weight:800;}
+.due-pill{font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div>
+    <h1>2 Lorenzen <span>HQ</span> <span style="font-size:12px;color:#718096;font-weight:400">Budget</span></h1>
+    <div class="sub" id="dt"></div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <button class="btn btn-green btn-sm" onclick="save()">💾 Save</button>
+    <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+  </div>
+</div>
+<div id="banner"></div>
+<div id="tabs">
+  <button class="tb on" onclick="go('wkbudget',this)">Wk Budget</button>
+  <button class="tb" onclick="go('budget',this)">Budget</button>
+  <button class="tb" onclick="go('banking',this)">Banking</button>
+  <button class="tb" onclick="go('history',this)">History</button>
+</div>
+<div id="main">
+  <div class="nav">
+    <a href="index.html">🏠 Main</a>
+    <a href="budget.html" class="active">💰 Budget</a>
+    <a href="fleet.html">🚗 Fleet</a>
+    <a href="wealth.html">📈 Wealth</a>
+    <a href="home.html">🏡 Home</a>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+var ACC_WEEKLY=1740, AIA_MONTHLY=5400;
+var ACC_MONTHLY=ACC_WEEKLY*52/12;
+var cur='wkbudget', stimer=null;
+
+// Week detection — anchor Mon 21 Jul 2026 = Week 1
+function getWeekNum(){var a=new Date('2026-07-21');var n=new Date();var d=Math.floor((n-a)/(7*86400000));return d%2===0?1:2;}
+function getWeekDates(wn){
+  var a=new Date('2026-07-21');
+  var off=(wn===1?0:7);
+  var s=new Date(a);s.setDate(s.getDate()+off);
+  var e=new Date(s);e.setDate(e.getDate()+6);
+  var fmt=function(d){return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});};
+  return 'Week '+wn+' — '+fmt(s)+' to '+fmt(e);
+}
+
+var W1E=[
+  {id:1,label:'KB Loan -20 (Mortgage)',amount:764.64,note:'DD — 4.65% fixed to 25/6/27',stream:'ACC',paid:false},
+  {id:2,label:'Nau Mai Ra — Power',amount:70,note:'Weekly DD',stream:'ACC',paid:false},
+  {id:3,label:'RUC Arrears $37.50/wk',amount:37.50,note:'Final 16/3/27',stream:'ACC',paid:false},
+  {id:4,label:'RUC Arrears $25/wk',amount:25,note:'Final 22/9/26',stream:'ACC',paid:false},
+  {id:5,label:'Groceries',amount:250,note:'PAKnSave / Woolworths',stream:'ACC',paid:false},
+  {id:6,label:'UDC — GDG647',amount:101,note:'411853-0002 DD',stream:'ACC',paid:false},
+  {id:7,label:'AMI — HUC206',amount:42,note:'Fortnightly',stream:'AIA',paid:false},
+  {id:8,label:'2 Degrees Broadband',amount:22.50,note:'DD',stream:'ACC',paid:false},
+  {id:9,label:'2 Degrees Mobiles',amount:50,note:'DD',stream:'ACC',paid:false},
+  {id:10,label:'Fuel',amount:120,note:'Estimate',stream:'ACC',paid:false}
+];
+var W2E=[
+  {id:1,label:'KB Loan -21 (Mortgage)',amount:798.74,note:'DD — 5.19% fixed to 25/6/28',stream:'ACC',paid:false},
+  {id:2,label:'Nau Mai Ra — Power',amount:70,note:'Weekly DD',stream:'ACC',paid:false},
+  {id:3,label:'RUC Arrears $25/wk',amount:25,note:'Final 22/9/26',stream:'ACC',paid:false},
+  {id:4,label:'RUC Arrears $37.50/wk',amount:37.50,note:'Final 16/3/27',stream:'ACC',paid:false},
+  {id:5,label:'Groceries',amount:250,note:'PAKnSave / Woolworths',stream:'ACC',paid:false},
+  {id:6,label:'UDC — WPN8',amount:180,note:'411853-0001 DD',stream:'ACC',paid:false},
+  {id:7,label:'Fuel',amount:60,note:'Estimate',stream:'ACC',paid:false},
+  {id:8,label:'2 Degrees Mobiles',amount:50,note:'DD',stream:'ACC',paid:false},
+  {id:9,label:'2 Degrees Broadband',amount:22.50,note:'DD',stream:'ACC',paid:false}
+];
+
+var RECURRING=[
+  {id:1,name:'Power — Nau Mai Ra',amount:65,freq:'Weekly',stream:'ACC',cat:'Utilities'},
+  {id:2,name:'Broadband — 2 Degrees',amount:22.50,freq:'Monthly',stream:'ACC',cat:'Utilities'},
+  {id:3,name:'2 Degrees Mobiles',amount:50,freq:'Weekly',stream:'ACC',cat:'Utilities'},
+  {id:4,name:'Gas — 3 Guys (Rockgas)',amount:170,freq:'Quarterly',stream:'ACC',cat:'Utilities'},
+  {id:5,name:'WDC House Rates',amount:858,freq:'Quarterly',stream:'ACC',cat:'Rates'},
+  {id:6,name:'WDC Water Rates',amount:88.33,freq:'Quarterly',stream:'ACC',cat:'Rates'},
+  {id:7,name:'WRC Water Usage',amount:60,freq:'Quarterly',stream:'ACC',cat:'Rates'},
+  {id:8,name:'KB Loan -20',amount:764.64,freq:'Fortnightly',stream:'ACC',cat:'Loans'},
+  {id:9,name:'KB Loan -21',amount:798.74,freq:'Fortnightly',stream:'ACC',cat:'Loans'},
+  {id:10,name:'UDC — WPN8 (411853-0001)',amount:180,freq:'Fortnightly',stream:'ACC',cat:'Loans'},
+  {id:11,name:'UDC — GDG647 (411853-0002)',amount:101,freq:'Fortnightly',stream:'ACC',cat:'Loans'},
+  {id:12,name:'EC Credit Control',amount:165,freq:'Monthly',stream:'ACC',cat:'Loans',note:'ref 1971362'},
+  {id:13,name:'Recoveries Corp — RUCs',amount:62.50,freq:'Weekly',stream:'ACC',cat:'Loans'},
+  {id:14,name:'Afterpay',amount:100,freq:'Fortnightly',stream:'ACC',cat:'Loans'},
+  {id:20,name:'AA — WPN8',amount:94.03,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:21,name:'AA — NAC330',amount:81.88,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:22,name:'AA — YS4600',amount:39.32,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:23,name:'AA — GNE294',amount:82.31,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:24,name:'AA — GDG647',amount:80.03,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:25,name:'AMI — HJQ910',amount:92.58,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:26,name:'AMI — GBF633',amount:72.64,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:27,name:'AMI — HUC206',amount:40.99,freq:'Fortnightly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:28,name:'AMI — RGR355',amount:143.44,freq:'Monthly',stream:'AIA',cat:'Vehicle Insurance'},
+  {id:29,name:'AMI — House & Contents',amount:211.12,freq:'Monthly',stream:'AIA',cat:'House Insurance'},
+  {id:30,name:'Fidelity — Casabella',amount:28.44,freq:'Monthly',stream:'AIA',cat:'Personal Insurance'},
+  {id:31,name:'Netflix',amount:25.99,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:32,name:'Neon',amount:23.99,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:33,name:'Spotify',amount:34.62,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:34,name:'Amazon Prime',amount:10.99,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:35,name:'Apple iCloud',amount:30.54,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:36,name:'Google One',amount:16.99,freq:'Monthly',stream:'AIA',cat:'Subscriptions'},
+  {id:37,name:'HBO Max',amount:14.00,freq:'Monthly',stream:'AIA',cat:'Subscriptions'}
+];
+
+var UPCOMING=[
+  {id:1,name:'EC Credit Control (ref 1971362)',amount:165,due:'2026-08-17',stream:'ACC',paid:false},
+  {id:2,name:'Recoveries Corp — RUCs',amount:62.50,due:'2026-07-28',stream:'ACC',paid:false},
+  {id:3,name:'UDC — WPN8',amount:180,due:'2026-08-04',stream:'ACC',paid:false},
+  {id:4,name:'UDC — GDG647',amount:101,due:'2026-07-28',stream:'ACC',paid:false},
+  {id:5,name:'2 Degrees Mobiles',amount:50,due:'2026-07-28',stream:'ACC',paid:false},
+  {id:6,name:'2 Degrees Broadband',amount:22.50,due:'2026-07-28',stream:'ACC',paid:false},
+  {id:7,name:'Afterpay',amount:100,due:'2026-07-27',stream:'ACC',paid:false},
+  {id:8,name:'AMI — House & Contents',amount:211.12,due:'2026-08-17',stream:'AIA',paid:false},
+  {id:9,name:'AA — Vehicle Insurance (batch)',amount:297.54,due:'2026-08-17',stream:'AIA',paid:false},
+  {id:10,name:'AMI — Vehicle Insurance (batch)',amount:350.65,due:'2026-08-17',stream:'AIA',paid:false},
+  {id:11,name:'Netflix',amount:25.99,due:'2026-08-21',stream:'AIA',paid:false},
+  {id:12,name:'Neon',amount:23.99,due:'2026-08-21',stream:'AIA',paid:false},
+  {id:13,name:'Google One',amount:16.99,due:'2026-08-09',stream:'AIA',paid:false},
+  {id:14,name:'WDC Rates (next quarter)',amount:858,due:'2026-10-01',stream:'ACC',paid:false},
+  {id:15,name:'3 Guys Gas',amount:170,due:'2026-08-20',stream:'ACC',paid:false},
+  {id:16,name:'Fidelity — Casabella',amount:28.44,due:'2026-08-18',stream:'AIA',paid:false}
+];
+
+var DEBTS=[
+  {id:1,name:'KB Loan -20',remaining:251509.57,repayment:764.64,freq:'Weekly',rate:4.65,col:'#63B3ED',note:'Fixed 4.65% to 25/6/27'},
+  {id:2,name:'KB Loan -21',remaining:252084.03,repayment:798.74,freq:'Weekly',rate:5.19,col:'#B794F4',note:'Fixed 5.19% to 25/6/28'},
+  {id:3,name:'UDC — WPN8',remaining:7699.02,repayment:180,freq:'Fortnightly',rate:10.15,col:'#ED8936',note:'Final 28/04/28'},
+  {id:4,name:'UDC — GDG647',remaining:4389.57,repayment:101,freq:'Fortnightly',rate:10.15,col:'#68D391',note:'Final 04/08/28'},
+  {id:5,name:'EC Credit Control',remaining:9321.50,repayment:165,freq:'Monthly',rate:0,col:'#E53E3E',note:'ref 1971362 from 17 Jun 2026'},
+  {id:6,name:'Recoveries Corp — RUCs',remaining:0,repayment:62.50,freq:'Weekly',rate:0,col:'#ECC94B',note:'$25/wk final 22 Sep 2026 + $37.50/wk final 16 Mar 2027'},
+  {id:7,name:'Afterpay',remaining:0,repayment:100,freq:'Fortnightly',rate:0,col:'#718096',note:'Approx $100 fortnightly'}
+];
+
+var HIST={
+  'Q3 2024':{'Aug 2024':{total:4581,items:[{n:'Nick',a:252},{n:'Garage Door',a:500},{n:'Direct Tech',a:402},{n:'WDC Rates',a:810},{n:'AMI H&C',a:769},{n:'Benesia',a:800},{n:'Savings (Deck)',a:750},{n:'Brushcutter',a:260}]},'Sep 2024':{total:5120,items:[{n:'WDC Rates',a:858},{n:'Groceries',a:980},{n:'Fuel',a:380},{n:'2 Degrees',a:140},{n:'Vehicle Ins',a:600},{n:'Other',a:2162}]}},
+  'Q4 2024':{'Oct 2024':{total:5100,items:[{n:'WDC Rates',a:858},{n:'Car repairs',a:1200},{n:'Groceries',a:950},{n:'Fuel',a:400},{n:'School fees',a:350},{n:'Other',a:1342}]},'Nov 2024':{total:3800,items:[{n:'Groceries',a:1050},{n:'Fuel',a:420},{n:'Vehicle Ins',a:600},{n:'Subscriptions',a:157},{n:'Other',a:1573}]},'Dec 2024':{total:6200,items:[{n:'Christmas',a:1800},{n:'Groceries',a:1200},{n:'Fuel',a:500},{n:'WDC Water',a:88},{n:'Vehicle Ins',a:600},{n:'Other',a:2012}]}},
+  'Q1 2025':{'Jan 2025':{total:4200,items:[{n:'Back to school',a:680},{n:'Groceries',a:950},{n:'Fuel',a:380},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:1370}]},'Feb 2025':{total:3600,items:[{n:'Groceries',a:900},{n:'Fuel',a:350},{n:'Vehicle Ins',a:600},{n:'Subscriptions',a:157},{n:'Other',a:1593}]},'Mar 2025':{total:4100,items:[{n:'WDC Rates',a:858},{n:'Groceries',a:980},{n:'Fuel',a:400},{n:'Car repairs',a:650},{n:'Vehicle Ins',a:600},{n:'Other',a:612}]}},
+  'Q2 2025':{'Apr 2025':{total:3900,items:[{n:'Groceries',a:950},{n:'Fuel',a:380},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:1750}]},'May 2025':{total:4500,items:[{n:'WDC Water',a:88},{n:'Groceries',a:1000},{n:'Fuel',a:420},{n:'Car parts',a:800},{n:'Vehicle Ins',a:600},{n:'Other',a:1592}]},'Jun 2025':{total:3800,items:[{n:'Groceries',a:920},{n:'Fuel',a:360},{n:'Vehicle Ins',a:600},{n:'Subscriptions',a:157},{n:'Other',a:1763}]}},
+  'Q3 2025':{'Jul 2025':{total:4300,items:[{n:'WDC Rates',a:858},{n:'Groceries',a:950},{n:'Fuel',a:400},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:1272}]},'Aug 2025':{total:3900,items:[{n:'Groceries',a:1000},{n:'Fuel',a:400},{n:'Vehicle Ins',a:600},{n:'Other',a:1900}]},'Sep 2025':{total:4100,items:[{n:'WDC Water',a:88},{n:'Groceries',a:980},{n:'Fuel',a:380},{n:'Car repairs',a:750},{n:'Vehicle Ins',a:600},{n:'Other',a:1302}]}},
+  'Q4 2025':{'Oct 2025':{total:5200,items:[{n:'WDC Rates',a:858},{n:'Groceries',a:1050},{n:'Fuel',a:420},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:2052}]},'Nov 2025':{total:4100,items:[{n:'Groceries',a:1000},{n:'Fuel',a:400},{n:'Vehicle Ins',a:600},{n:'Subscriptions',a:157},{n:'Other',a:1943}]},'Dec 2025':{total:6800,items:[{n:'Christmas',a:2200},{n:'Groceries',a:1250},{n:'Fuel',a:520},{n:'WDC Water',a:88},{n:'Vehicle Ins',a:600},{n:'Other',a:2142}]}},
+  'Q1 2026':{'Jan 2026':{total:4400,items:[{n:'Back to school',a:720},{n:'Groceries',a:1000},{n:'Fuel',a:400},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:1460}]},'Feb 2026':{total:3800,items:[{n:'Groceries',a:950},{n:'Fuel',a:380},{n:'Vehicle Ins',a:600},{n:'Subscriptions',a:157},{n:'Other',a:1713}]},'Mar 2026':{total:4600,items:[{n:'WDC Rates',a:858},{n:'Car repairs WPN8',a:900},{n:'Groceries',a:1000},{n:'Fuel',a:420},{n:'Vehicle Ins',a:600},{n:'Other',a:822}]}},
+  'Q2 2026':{'Apr 2026':{total:4100,items:[{n:'Groceries',a:980},{n:'Fuel',a:390},{n:'AMI H&C',a:220},{n:'Vehicle Ins',a:600},{n:'Other',a:1910}]},'May 2026':{total:3900,items:[{n:'WDC Water',a:88},{n:'Groceries',a:950},{n:'Fuel',a:380},{n:'Vehicle Ins',a:600},{n:'Other',a:1882}]},'Jun 2026':{total:4800,items:[{n:'Groceries',a:1000},{n:'Fuel',a:400},{n:'WPN8 parts',a:397},{n:'Woolworths',a:239},{n:'KB restructure',a:25},{n:'Vehicle Ins',a:600},{n:'Other',a:2139}]}}
+};
+
+function fm(n){return '$'+(parseFloat(n)||0).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function td(){return new Date().toISOString().split('T')[0];}
+function dTo(d){if(!d)return null;return Math.ceil((new Date(d)-new Date(td()))/86400000);}
+function fmtD(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short'}):''}
+function toMo(r){var a=parseFloat(r.amount)||0;var f=r.freq;if(f==='Weekly')return a*52/12;if(f==='Fortnightly')return a*26/12;if(f==='Monthly')return a;if(f==='Quarterly')return a/3;if(f==='Annual')return a/12;return a;}
+function chip(l,c){return '<span class="chip" style="background:'+c+'22;color:'+c+'">'+l+'</span>';}
+function dp(d){var n=dTo(d);if(n===null||!d)return '';var c=n<0?'#E53E3E':n<=3?'#E53E3E':n<=7?'#ED8936':'#ECC94B';var l=n<0?'Overdue '+Math.abs(n)+'d':n===0?'TODAY':fmtD(d)+' (in '+n+'d)';return '<span class="due-pill" style="background:'+c+'22;color:'+c+'">Due '+l+'</span>';}
+
+var wkn=getWeekNum();
+var wkExp={1:JSON.parse(JSON.stringify(W1E)),2:JSON.parse(JSON.stringify(W2E))};
+var upcoming=JSON.parse(JSON.stringify(UPCOMING));
+var recurring=JSON.parse(JSON.stringify(RECURRING));
+var balance='180.37';
+var selQ=null,selM=null;
+
+function save(){try{localStorage.setItem('lhq-budget',JSON.stringify({wkExp,upcoming,recurring,balance,savedAt:new Date().toISOString()}));flash('💾 Saved — '+new Date().toLocaleTimeString('en-NZ'));}catch(e){flash('Save failed','#E53E3E');}}
+function sync(){try{var d=localStorage.getItem('lhq-budget');if(d){var p=JSON.parse(d);if(p.wkExp)wkExp=p.wkExp;if(p.upcoming)upcoming=p.upcoming;if(p.recurring)recurring=p.recurring;if(p.balance)balance=p.balance;flash('✅ Loaded — '+new Date(p.savedAt).toLocaleString('en-NZ'));render();}else{flash('No saved data','#ED8936');}}catch(e){flash('Load failed','#E53E3E');}}
+function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
+function flash(msg,col){var b=document.getElementById('banner');b.textContent=msg;b.style.background=col||'#68D391';b.style.color='#0F1117';b.style.display='block';setTimeout(function(){b.style.display='none';},3000);}
+
+function renderWkBudget(){
+  var exp=wkExp[wkn];
+  var totalInc=ACC_WEEKLY;
+  var totalExp=exp.reduce(function(s,e){return s+(parseFloat(e.amount)||0);},0);
+  var paidExp=exp.filter(function(e){return e.paid;}).reduce(function(s,e){return s+(parseFloat(e.amount)||0);},0);
+  var pos=totalInc-totalExp;
+  var posCol=pos>=0?'#68D391':'#E53E3E';
+
+  var isWed=new Date().getDay()===3;
+  var wedBanner=isWed?'<div style="background:rgba(237,137,54,0.15);border:1px solid rgba(237,137,54,0.3);border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:center"><span style="font-size:24px">📂</span><div><div style="font-weight:700;color:#ED8936">Wednesday — Upload your Kiwibank CSV</div><div style="font-size:12px;color:#A0AEC0">Download from Kiwibank online and upload to auto-match payments</div></div></div>':'';
+
+  var expRows=exp.map(function(e,i){
+    return '<div class="row" style="opacity:'+(e.paid?0.6:1)+'">' +
+      '<span style="font-size:18px;cursor:pointer;flex-shrink:0" onclick="toggleWkExp('+wkn+','+i+')">'+(e.paid?'✅':'⬜')+'</span>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:15px;text-decoration:'+(e.paid?'line-through':'none')+';color:'+(e.paid?'#718096':'#E2E8F0')+'">'+e.label+'</div>'+
+      (e.note?'<div style="font-size:11px;color:#718096">'+e.note+'</div>':'')+
+      '</div>'+
+      chip(e.stream,e.stream==='ACC'?'#68D391':'#63B3ED')+
+      '<span style="font-weight:700;color:'+(e.paid?'#718096':'#ED8936');+'font-family:inherit">'+fm(e.amount)+'</span>'+
+      '</div>';
+  }).join('');
+
+  return wedBanner+
+    '<div class="card" style="border-top:3px solid '+posCol+'">' +
+      '<div class="ch"><span class="ct">'+getWeekDates(wkn)+'</span>'+
+        '<div style="text-align:right"><div style="font-size:11px;color:#A0AEC0">POSITION</div>'+
+        '<div style="font-size:20px;font-weight:800;color:'+posCol+'">'+fm(pos)+'</div>'+
+        '<div style="font-size:11px;color:'+posCol+'">'+(pos>=0?'Ahead':'Behind')+'</div></div></div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid #2D3748">'+
+        '<button class="btn btn-sm" style="background:'+(wkn===1?'#63B3ED':'#20253A')+';color:'+(wkn===1?'#0F1117':'#A0AEC0')+'" onclick="wkn=1;render()">Week 1</button>'+
+        '<button class="btn btn-sm" style="background:'+(wkn===2?'#63B3ED':'#20253A')+';color:'+(wkn===2?'#0F1117':'#A0AEC0')+'" onclick="wkn=2;render()">Week 2</button>'+
+      '</div>'+
+      '<div class="cb">'+
+        '<div class="sgrid">'+
+          '<div class="scard" style="border-top:3px solid #68D391"><div class="sl">ACC Income</div><div class="sv" style="color:#68D391">'+fm(totalInc)+'</div></div>'+
+          '<div class="scard" style="border-top:3px solid #E53E3E"><div class="sl">Total Exp</div><div class="sv" style="color:#E53E3E">'+fm(totalExp)+'</div></div>'+
+          '<div class="scard" style="border-top:3px solid #ECC94B"><div class="sl">Paid So Far</div><div class="sv" style="color:#ECC94B">'+fm(paidExp)+'</div></div>'+
+          '<div class="scard" style="border-top:3px solid '+posCol+'"><div class="sl">Left Over</div><div class="sv" style="color:'+posCol+'">'+fm(pos)+'</div></div>'+
+        '</div>'+
+        expRows+
+      '</div>'+
+    '</div>';
+}
+
+function toggleWkExp(wk,i){wkExp[wk][i].paid=!wkExp[wk][i].paid;sched();render();}
+
+function renderBudget(){
+  var accItems=recurring.filter(function(r){return r.stream==='ACC';});
+  var aiaItems=recurring.filter(function(r){return r.stream==='AIA';});
+  var accMo=accItems.reduce(function(s,r){return s+toMo(r);},0);
+  var aiaMo=aiaItems.reduce(function(s,r){return s+toMo(r);},0);
+  var accLeft=ACC_MONTHLY-accMo;
+  var aiaLeft=AIA_MONTHLY-aiaMo;
+
+  function streamSection(items,income,label,col,left){
+    var byCat=items.reduce(function(acc,r){if(!acc[r.cat])acc[r.cat]=[];acc[r.cat].push(r);return acc;},{});
+    var pct=Math.min(100,Math.round(accMo/income*100));
+    var catRows=Object.keys(byCat).map(function(cat){
+      var rows=byCat[cat].map(function(r){
+        return '<div class="row">'+
+          '<div style="flex:1"><div style="font-size:15px">'+r.name+'</div>'+(r.note?'<div style="font-size:11px;color:#718096">'+r.note+'</div>':'')+
+          '</div>'+chip(r.freq,'#718096')+
+          '<span style="font-weight:700;color:'+col+';min-width:70px;text-align:right">'+fm(toMo(r))+'/mo</span>'+
+          '<button onclick="delRec('+r.id+')" style="padding:2px 6px;font-size:11px;border:none;border-radius:4px;cursor:pointer;background:rgba(229,62,62,0.15);color:#E53E3E;font-family:inherit">✕</button>'+
+          '</div>';
+      }).join('');
+      return '<div style="font-size:11px;font-weight:700;color:#A0AEC0;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 4px;border-bottom:1px solid #1E2333">'+cat+'</div>'+rows;
+    }).join('');
+    return '<div class="card" style="border-top:3px solid '+col+'">'+
+      '<div class="ch"><span class="ct">'+label+'</span><div style="text-align:right">'+
+        '<div style="font-size:11px;color:#A0AEC0">INCOME</div>'+
+        '<div style="font-size:16px;font-weight:800;color:'+col+'">'+fm(income)+'/mo</div></div></div>'+
+      '<div class="cb">'+
+        '<div class="sgrid">'+
+          '<div class="scard"><div class="sl">Committed</div><div class="sv" style="color:#E53E3E">'+fm(items.reduce(function(s,r){return s+toMo(r);},0))+'/mo</div></div>'+
+          '<div class="scard"><div class="sl">Remaining</div><div class="sv" style="color:'+(left>=0?'#68D391':'#E53E3E')+'">'+fm(left)+'/mo</div></div>'+
+        '</div>'+
+        '<div class="pbar"><div class="pfill" style="width:'+Math.min(100,items.reduce(function(s,r){return s+toMo(r);},0)/income*100)+'%;background:'+col+'"></div></div>'+
+        catRows+
+        (left<0?'<div style="margin-top:12px;padding:10px;background:rgba(229,62,62,0.1);border-radius:8px;font-size:13px;color:#E53E3E">Over budget by '+fm(Math.abs(left))+'/mo</div>':'')+
+      '</div></div>';
+  }
+
+  var addRow='<div class="card" style="padding:14px 18px">'+
+    '<div style="font-size:11px;font-weight:700;color:#A0AEC0;text-transform:uppercase;margin-bottom:10px">+ Add Bill / Subscription</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    '<input id="rname" placeholder="Name" style="flex:2 1 140px"/>'+
+    '<input id="ramt" placeholder="Amount $" style="width:80px"/>'+
+    '<select id="rfreq" style="width:110px"><option>Weekly</option><option>Fortnightly</option><option selected>Monthly</option><option>Quarterly</option><option>Annual</option></select>'+
+    '<select id="rstream" style="width:80px"><option>ACC</option><option>AIA</option></select>'+
+    '<input id="rcat" placeholder="Category" style="flex:1 1 100px"/>'+
+    '<button class="btn btn-green" onclick="addRec()">+ Add</button>'+
+    '</div></div>';
+
+  return streamSection(accItems,ACC_MONTHLY,'💚 ACC Income Stream','#68D391',accLeft)+
+         streamSection(aiaItems,AIA_MONTHLY,'💙 AIA Income Stream','#63B3ED',aiaLeft)+
+         addRow;
+}
+
+function addRec(){
+  var n=document.getElementById('rname').value.trim();if(!n)return;
+  var r={id:Date.now(),name:n,amount:parseFloat(document.getElementById('ramt').value)||0,
+    freq:document.getElementById('rfreq').value,stream:document.getElementById('rstream').value,
+    cat:document.getElementById('rcat').value||'Other'};
+  recurring.push(r);sched();render();
+}
+function delRec(id){recurring=recurring.filter(function(r){return r.id!==id;});sched();render();}
+
+function renderBanking(){
+  var sorted=[].concat(upcoming).sort(function(a,b){return (a.due||'9999').localeCompare(b.due||'9999');});
+  var acc=sorted.filter(function(u){return u.stream==='ACC'&&!u.paid;});
+  var aia=sorted.filter(function(u){return u.stream==='AIA'&&!u.paid;});
+  var done=upcoming.filter(function(u){return u.paid;});
+  var totalOut=upcoming.filter(function(u){return !u.paid;}).reduce(function(s,u){return s+(parseFloat(u.amount)||0);},0);
+  var bal=parseFloat(balance)||0;
+
+  function upRow(u){
+    var d=dTo(u.due);var c=d===null?'#718096':d<0?'#E53E3E':d<=3?'#E53E3E':d<=7?'#ED8936':'#718096';
+    return '<div class="row" style="opacity:'+(u.paid?0.5:1)+';border-left:3px solid '+(u.paid?'#68D391':c)+';padding-left:10px">'+
+      '<span style="font-size:18px;cursor:pointer;flex-shrink:0" onclick="toggleUp('+u.id+')">'+(u.paid?'✅':'⬜')+'</span>'+
+      '<div style="flex:1;cursor:pointer" onclick="toggleUp('+u.id+')">'+
+        '<div style="font-size:15px;text-decoration:'+(u.paid?'line-through':'none')+';color:'+(u.paid?'#718096':'#E2E8F0')+'">'+u.name+'</div>'+
+        (u.due?'<div style="font-size:11px;color:'+c+'">Due '+fmtD(u.due)+(d!==null?' (in '+d+'d)':'')+'</div>':'')+
+      '</div>'+
+      '<span style="font-weight:700;color:'+(u.paid?'#718096':'#ED8936')+'">'+fm(u.amount)+'</span>'+
+      '<button onclick="delUp('+u.id+')" style="padding:2px 6px;font-size:11px;border:none;border-radius:4px;cursor:pointer;background:rgba(229,62,62,0.15);color:#E53E3E;font-family:inherit">✕</button>'+
+      '</div>';
+  }
+
+  var addUp='<div style="margin-top:12px;padding-top:12px;border-top:1px solid #1E2333">'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    '<input id="uname" placeholder="Payment name" style="flex:2 1 140px"/>'+
+    '<input id="uamt" placeholder="Amount $" style="width:80px"/>'+
+    '<input id="udue" type="date" style="width:140px"/>'+
+    '<select id="ustream" style="width:80px"><option>ACC</option><option>AIA</option></select>'+
+    '<button class="btn btn-green" onclick="addUp()">+ Add</button>'+
+    '</div></div>';
+
+  return '<div class="card" style="border-top:3px solid #63B3ED">'+
+    '<div class="ch"><span class="ct">🏦 Kiwibank Balance</span></div>'+
+    '<div class="cb">'+
+      '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">'+
+        '<div><div style="font-size:11px;color:#718096;margin-bottom:6px">Current balance</div>'+
+          '<div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px;color:#718096">$</span>'+
+          '<input style="width:120px;font-size:18px;font-weight:700" value="'+balance+'" oninput="balance=this.value;sched();renderBanking2()"/></div></div>'+
+        '<div style="text-align:right">'+
+          '<div style="font-size:11px;color:#718096">UPCOMING OUTGOING</div>'+
+          '<div style="font-size:20px;font-weight:800;color:#E53E3E">'+fm(totalOut)+'</div>'+
+          '<div style="font-size:11px;color:'+(bal-totalOut>=0?'#68D391':'#E53E3E')+'">'+(bal-totalOut>=0?'Will cover':'Short by '+fm(Math.abs(bal-totalOut)))+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div></div>'+
+    '<div class="card">'+
+      '<div class="ch"><span class="ct">💚 Upcoming — ACC Income pays</span>'+chip(fm(acc.reduce(function(s,u){return s+u.amount;},0))+' outstanding','#68D391')+'</div>'+
+      '<div class="cb">'+(acc.length===0?'<div style="color:#718096">All clear! 🎉</div>':acc.map(upRow).join(''))+addUp+'</div></div>'+
+    '<div class="card">'+
+      '<div class="ch"><span class="ct">💙 Upcoming — AIA Income pays</span>'+chip(fm(aia.reduce(function(s,u){return s+u.amount;},0))+' outstanding','#63B3ED')+'</div>'+
+      '<div class="cb">'+(aia.length===0?'<div style="color:#718096">All clear! 🎉</div>':aia.map(upRow).join(''))+'</div></div>'+
+    '<div class="card">'+
+      '<div class="ch"><span class="ct">📊 Loan & Debt Tracker</span>'+chip(fm(DEBTS.reduce(function(s,d){return s+(d.remaining||0);},0))+' total','#B794F4')+'</div>'+
+      '<div class="cb">'+DEBTS.map(function(d){
+        return '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #1E2333">'+
+          '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+            '<div><div style="font-weight:700;font-size:15px">'+d.name+'</div><div style="font-size:12px;color:#718096;margin-top:2px">'+d.note+'</div></div>'+
+            '<div style="text-align:right">'+
+              (d.remaining>0?'<div style="font-size:15px;font-weight:800;color:'+d.col+'">'+fm(d.remaining)+' remaining</div>':'')+
+              '<div style="font-size:12px;color:#A0AEC0">'+fm(d.repayment)+' / '+d.freq+'</div>'+
+              (d.rate>0?'<div style="font-size:11px;color:#718096">'+d.rate+'% p.a.</div>':'')+
+            '</div>'+
+          '</div>'+
+          '</div>';
+      }).join('')+'</div></div>'+
+    (done.length?'<div class="card"><div class="ch"><span class="ct">✅ Paid ('+done.length+')</span>'+
+      '<button class="btn btn-surf btn-sm" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\'">Show</button></div>'+
+      '<div style="display:none" class="cb">'+done.map(upRow).join('')+'</div></div>':'');
+}
+
+function renderBanking2(){document.getElementById('content').innerHTML=renderBanking();}
+function toggleUp(id){upcoming=upcoming.map(function(u){return u.id===id?Object.assign({},u,{paid:!u.paid}):u;});sched();render();}
+function delUp(id){upcoming=upcoming.filter(function(u){return u.id!==id;});sched();render();}
+function addUp(){var n=document.getElementById('uname').value.trim();if(!n)return;upcoming.push({id:Date.now(),name:n,amount:parseFloat(document.getElementById('uamt').value)||0,due:document.getElementById('udue').value,stream:document.getElementById('ustream').value,paid:false});sched();render();}
+
+function renderHistory(){
+  var qs=Object.keys(HIST);
+  var qBtns=qs.map(function(q){var t=Object.values(HIST[q]).reduce(function(s,m){return s+m.total;},0);return '<button class="btn btn-sm" style="background:'+(selQ===q?'#63B3ED':'#20253A')+';color:'+(selQ===q?'#0F1117':'#A0AEC0')+'" onclick="selQ=\''+q+'\';selM=null;render()">'+q+' '+fm(t)+'</button>';}).join('');
+  var mBtns='';
+  if(selQ){var ms=Object.keys(HIST[selQ]);mBtns=ms.map(function(m){return '<button class="btn btn-sm" style="background:'+(selM===m?'#B794F4':'#20253A')+';color:'+(selM===m?'#0F1117':'#A0AEC0')+'" onclick="selM=\''+m+'\';render()">'+m+' '+fm(HIST[selQ][m].total)+'</button>';}).join('');}
+  var items='';
+  if(selQ&&selM){var d=HIST[selQ][selM];items='<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-weight:700;font-size:16px">'+selM+'</span><span style="font-weight:800;font-size:18px;color:#E53E3E">'+fm(d.total)+'</span></div>'+d.items.map(function(it){return '<div class="row"><span style="flex:1">'+it.n+'</span><span style="font-weight:700;color:#ED8936">'+fm(it.a)+'</span></div>';}).join('')+'</div>';}
+  return '<div class="card"><div class="ch"><span class="ct">📅 Expense History — Aug 2024 to Jun 2026</span></div><div class="cb">'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+qBtns+'</div>'+
+    (mBtns?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+mBtns+'</div>':'')+
+    (items||(!selQ?'<div style="color:#718096">Select a quarter above.</div>':''))+
+    '</div></div>';
+}
+
+function render(){
+  var html='';
+  if(cur==='wkbudget')html=renderWkBudget();
+  else if(cur==='budget')html=renderBudget();
+  else if(cur==='banking')html=renderBanking();
+  else if(cur==='history')html=renderHistory();
+  document.getElementById('content').innerHTML=html;
+}
+
+function go(tab,btn){cur=tab;document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');render();}
+
+document.getElementById('dt').textContent=new Date().toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+try{var d=localStorage.getItem('lhq-budget');if(d){var p=JSON.parse(d);if(p.wkExp)wkExp=p.wkExp;if(p.upcoming)upcoming=p.upcoming;if(p.recurring)recurring=p.recurring;if(p.balance)balance=p.balance;}}catch(e){}
+render();
+</script>
+</body>
+</html>

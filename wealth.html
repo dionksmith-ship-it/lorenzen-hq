@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>2 Lorenzen HQ — Wealth</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Century Gothic','Futura','Trebuchet MS',sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh;font-size:15px;}
+#hdr{position:sticky;top:0;z-index:200;background:#1A1D27;border-bottom:1px solid #2D3748;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+#hdr h1{font-size:17px;font-weight:800;}
+#hdr h1 span{color:#B794F4;}
+.sub{font-size:11px;color:#718096;margin-top:2px;}
+#banner{display:none;padding:10px 20px;text-align:center;font-weight:700;font-size:13px;}
+#main{padding:20px;max-width:1100px;margin:0 auto;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.nav a{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;}
+.nav a.active{background:#B794F4;color:#0F1117;}
+.card{background:#1A1D27;border:1px solid #2D3748;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#20253A;border-bottom:1px solid #2D3748;}
+.ct{font-weight:700;font-size:11px;letter-spacing:0.8px;text-transform:uppercase;color:#A0AEC0;}
+.cb{padding:14px 18px;}
+.chip{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-surf{background:#20253A;color:#A0AEC0;}
+.btn-purple{background:#B794F4;color:#0F1117;}
+input,select{background:#0F1117;border:1px solid #2D3748;border-radius:6px;color:#E2E8F0;padding:7px 10px;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;width:100%;}
+input:focus{border-color:#B794F4;}
+.row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1E2333;flex-wrap:wrap;}
+.row:last-child{border-bottom:none;}
+.sgrid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.scard{flex:1 1 120px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:12px;text-align:center;}
+.sc-lbl{font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.sc-val{font-size:16px;font-weight:800;}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div>
+    <h1>2 Lorenzen <span>HQ</span> <span style="font-size:12px;color:#718096;font-weight:400">Wealth</span></h1>
+    <div class="sub" id="dt"></div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-purple btn-sm" onclick="save()">💾 Save</button>
+    <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+  </div>
+</div>
+<div id="banner"></div>
+<div id="main">
+  <div class="nav">
+    <a href="index.html">🏠 Main</a>
+    <a href="budget.html">💰 Budget</a>
+    <a href="fleet.html">🚗 Fleet</a>
+    <a href="wealth.html" class="active">📈 Wealth</a>
+    <a href="home.html">🏡 Home</a>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+var KS=[
+  {date:'Apr 2024',value:34610.01,note:'Changed Balanced to Growth'},{date:'Apr 2024b',value:35057.61,note:''},
+  {date:'May 2024',value:36259.60,note:''},{date:'Jun 2024',value:36115.03,note:''},{date:'Jun 2024b',value:36242.83,note:''},
+  {date:'Aug 2024',value:35637.31,note:''},{date:'Sep 2024',value:36708.70,note:''},{date:'Sep 2024b',value:37873.05,note:''},
+  {date:'Oct 2024',value:37654.14,note:''},{date:'Nov 2024',value:37991.50,note:''},{date:'Dec 2024',value:38631.91,note:''},
+  {date:'Jan 2025',value:38176.62,note:''},{date:'Jan 2025b',value:39628.20,note:''},{date:'Feb 2025',value:39162.33,note:''},
+  {date:'May 2025',value:37847.21,note:''},{date:'Jun 2025',value:38088.79,note:''},
+  {date:'Jul 2025',value:40110.00,note:''},{date:'Aug 2025',value:41875.28,note:'Changed Growth to Aggressive - 14.45% annual'},
+  {date:'Sep 2025',value:42800.72,note:''},{date:'Oct 2025',value:44372.31,note:''},{date:'Nov 2025',value:44521.12,note:''},
+  {date:'Jan 2026',value:44557.15,note:''},{date:'Mar 2026',value:45174.69,note:'Changed Aggressive to Balanced (Iran attack 28/2/26)'},
+  {date:'Mar 2026b',value:43090.19,note:'Market dip post Iran'},
+  {date:'Apr 2026',value:45415.06,note:'Changed Balanced to Aggressive (Trump ceasefire)'},
+  {date:'May 2026',value:45881.27,note:''},{date:'May 2026b',value:45892.96,note:''},
+  {date:'Jun 2026',value:46944.35,note:'US/Iran 60-day ceasefire MOU'},{date:'Jun 2026b',value:46479.66,note:''}
+];
+
+var DION=[
+  {ticker:'INTC',name:'Intel Corp',    shares:0.1729,price:18.24,invested:20.00,ret:-8.82},
+  {ticker:'TSLA',name:'Tesla Inc',     shares:0.0506,price:19.18,invested:20.82,ret:-7.86},
+  {ticker:'SITM',name:'SiTime Corp',   shares:0.0429,price:25.33,invested:23.21,ret:9.12},
+  {ticker:'MU',  name:'Micron Tech',   shares:0.0469,price:45.54,invested:39.58,ret:15.06},
+  {ticker:'KGC', name:'Kinross Gold',  shares:0.8699,price:14.01,invested:102.63,ret:24.73}
+];
+var BELLE=[
+  {ticker:'KGC', name:'Kinross Gold',  shares:0.3499,price:8.19, invested:10.23,ret:-28.36},
+  {ticker:'MU',  name:'Micron Tech',   shares:0.0236,price:22.89,invested:18.00,ret:27.16},
+  {ticker:'SITM',name:'SiTime Corp',   shares:0.1303,price:76.88,invested:12.20,ret:447.94},
+  {ticker:'SPCX',name:'SpaceX',        shares:0.0566,price:7.00, invested:11.57,ret:-39.54}
+];
+var JONTY=[
+  {ticker:'ETHE',name:'Grayscale ETH ETF',shares:1.011, price:15.69,invested:15.00,ret:4.75},
+  {ticker:'INTC',name:'Intel Corp',       shares:0.1556,price:16.41,invested:18.00,ret:-8.82},
+  {ticker:'KGC', name:'Kinross Gold',     shares:1.1025,price:25.82,invested:40.36,ret:-34.93},
+  {ticker:'MU',  name:'Micron Tech',      shares:0.0392,price:38.07,invested:40.36,ret:-5.67},
+  {ticker:'SITM',name:'SiTime Corp',      shares:0.0572,price:11.00,invested:43.86,ret:-6.03}
+];
+
+var RECS=[
+  {ticker:'IFT', name:'Infratil Ltd',             exch:'NZX',   risk:'low',   note:'NZ infrastructure - airports, data centres, renewables. Defensive, strong dividends.'},
+  {ticker:'FPH', name:'Fisher & Paykel Healthcare',exch:'NZX',   risk:'low',   note:'NZ healthcare exporter, global growth. Solid long-term hold.'},
+  {ticker:'MEL', name:'Meridian Energy',           exch:'NZX',   risk:'low',   note:'NZ renewable energy. Consistent dividends. Lower volatility.'},
+  {ticker:'SITM',name:'SiTime Corp (HOLD)',        exch:'NASDAQ', risk:'high',  note:'Casabella +447.94% — extraordinary. Hold unless needing cash.'},
+  {ticker:'KGC', name:'Kinross Gold (REVIEW)',     exch:'NYSE',   risk:'medium',note:'Jonty down 34.93%. Consider switching to IFT or FPH.'},
+  {ticker:'SPCX',name:'SpaceX (long-term only)',   exch:'NASDAQ', risk:'high',  note:'Casabella -39.54%. Only keep with 5+ year horizon.'}
+];
+
+var lotto=[];var editLottoId=null;var stimer=null;var showRecs=false;var openShares={};
+
+function fm(n){return '$'+(parseFloat(n)||0).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function td(){return new Date().toISOString().split('T')[0];}
+function chip(l,c){return '<span class="chip" style="background:'+c+'22;color:'+c+'">'+l+'</span>';}
+function save(){try{localStorage.setItem('lhq-wealth',JSON.stringify({lotto,savedAt:new Date().toISOString()}));flash('💾 Saved');}catch(e){flash('Save failed','#E53E3E');}}
+function sync(){try{var d=localStorage.getItem('lhq-wealth');if(d){var p=JSON.parse(d);if(p.lotto)lotto=p.lotto;flash('✅ Loaded');render();}else flash('No data','#ED8936');}catch(e){flash('Load failed','#E53E3E');}}
+function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
+function flash(msg,col){var b=document.getElementById('banner');b.textContent=msg;b.style.background=col||'#B794F4';b.style.color='#0F1117';b.style.display='block';setTimeout(function(){b.style.display='none';},3000);}
+
+function sharesCard(name,holdings,retPct){
+  var tot=holdings.reduce(function(s,h){return s+h.shares*h.price;},0);
+  var inv=holdings.reduce(function(s,h){return s+h.invested;},0);
+  var c=retPct>=0?'#68D391':'#E53E3E';
+  var isOpen=!!openShares[name];
+  var hdr='<div style="border:1px solid #2D3748;border-radius:8px;overflow:hidden;margin-bottom:8px;border-left:3px solid '+c+'">'+
+    '<div style="display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer" onclick="openShares[\''+name+'\']=!openShares[\''+name+'\'];render()">'+
+      '<div style="flex:1"><div style="font-weight:700;font-size:15px">'+name+'</div>'+
+        '<div style="font-size:12px;color:#718096">'+holdings.length+' holdings · invested '+fm(inv)+' NZD</div></div>'+
+      '<div style="text-align:right"><div style="font-weight:800;font-size:17px;color:'+c+'">'+fm(tot)+' NZD</div>'+
+        '<div style="font-size:12px;color:'+c+'">'+(retPct>=0?'+':'')+retPct.toFixed(2)+'%</div></div>'+
+      '<span style="color:#718096;font-size:14px;margin-left:8px">'+(isOpen?'▲':'▼')+'</span>'+
+    '</div>';
+  if(!isOpen) return hdr+'</div>';
+  var rows=holdings.map(function(h){
+    var val=h.shares*h.price;var gain=val-h.invested;var c2=h.ret>=0?'#68D391':'#E53E3E';
+    return '<div class="row">'+
+      '<span style="font-weight:700;color:#63B3ED;min-width:45px">'+h.ticker+'</span>'+
+      '<div style="flex:1"><div style="font-size:13px">'+h.name+'</div><div style="font-size:11px;color:#718096">'+h.shares+' shares @ $'+h.price+'</div></div>'+
+      '<div style="text-align:right"><div style="font-weight:700;color:'+c2+'">'+(h.ret>=0?'+':'')+h.ret.toFixed(2)+'%</div>'+
+        '<div style="font-size:11px;color:'+c2+'">'+(gain>=0?'+':'')+fm(Math.abs(gain))+'</div></div>'+
+      '</div>';
+  }).join('');
+  return hdr+'<div style="padding:0 18px 14px">'+rows+'</div></div>';
+}
+
+function render(){
+  var ksStart=KS[0].value;var ksEnd=KS[KS.length-1].value;var ksGain=((ksEnd-ksStart)/ksStart*100).toFixed(1);
+  var ksMax=Math.max.apply(null,KS.map(function(k){return k.value;}));
+  var ksMin=Math.min.apply(null,KS.map(function(k){return k.value;}));
+  var dionTot=DION.reduce(function(s,h){return s+h.shares*h.price;},0);
+  var belleTot=BELLE.reduce(function(s,h){return s+h.shares*h.price;},0);
+  var jontyTot=JONTY.reduce(function(s,h){return s+h.shares*h.price;},0);
+  var lottoSpend=lotto.reduce(function(s,e){return s+(parseFloat(e.spend)||0);},0);
+  var lottoWon=lotto.reduce(function(s,e){return s+(parseFloat(e.won)||0);},0);
+  var lottoNet=lottoWon-lottoSpend;
+
+  var bars=KS.map(function(k,i){
+    var h=Math.max(4,((k.value-ksMin)/(ksMax-ksMin))*76);
+    var c=k.value>=(KS[i-1]?KS[i-1].value:k.value)?'#68D391':'#E53E3E';
+    return '<div title="'+k.date+': '+fm(k.value)+(k.note?' - '+k.note:'')+'" style="flex:1;height:'+h+'px;background:'+c+';border-radius:2px 2px 0 0;opacity:0.85;min-width:3px;cursor:default"></div>';
+  }).join('');
+
+  var rcol={low:'#68D391',medium:'#ECC94B',high:'#E53E3E'};
+  var recRows=RECS.map(function(r){
+    return '<div class="row">'+
+      '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;min-width:80px">'+
+        '<span style="font-weight:800;color:#63B3ED;font-size:15px">'+r.ticker+'</span>'+
+        '<span style="font-size:10px;color:#718096">'+r.exch+'</span>'+
+        chip(r.risk,rcol[r.risk])+
+      '</div>'+
+      '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+r.name+'</div><div style="font-size:12px;color:#A0AEC0;margin-top:2px">'+r.note+'</div></div>'+
+      '</div>';
+  }).join('');
+
+  var lottoRows=lotto.map(function(e,i){
+    var net=(parseFloat(e.won)||0)-(parseFloat(e.spend)||0);
+    return '<div class="row">'+
+      '<span style="font-size:11px;color:#718096;min-width:75px;flex-shrink:0">'+e.date+'</span>'+
+      '<span style="flex:1;font-size:13px">'+(e.type||'Lotto')+(e.jackpot?' $'+e.jackpot+'m':'')+'</span>'+
+      '<span style="color:#E53E3E;font-weight:700;min-width:55px;text-align:right">'+fm(e.spend)+'</span>'+
+      '<span style="color:#68D391;font-weight:700;min-width:55px;text-align:right">'+fm(e.won)+'</span>'+
+      '<span style="color:'+(net>=0?'#68D391':'#E53E3E')+';font-weight:700;min-width:55px;text-align:right">'+(net>=0?'+':'')+fm(net)+'</span>'+
+      '<button onclick="editLotto('+i+')" style="padding:2px 6px;font-size:11px;border:none;border-radius:4px;cursor:pointer;background:#20253A;color:#A0AEC0;font-family:inherit;margin-left:4px">✏️</button>'+
+      '<button onclick="delLotto('+i+')" style="padding:2px 6px;font-size:11px;border:none;border-radius:4px;cursor:pointer;background:rgba(229,62,62,0.15);color:#E53E3E;font-family:inherit">✕</button>'+
+      '</div>';
+  }).join('');
+
+  var isEditing=editLottoId!==null;
+  var el=isEditing?lotto[editLottoId]:null;
+
+  document.getElementById('content').innerHTML=
+    '<div class="sgrid">'+
+      '<div class="scard" style="border-top:3px solid #68D391"><div class="sc-lbl">KiwiSaver</div><div class="sc-val" style="color:#68D391">'+fm(ksEnd)+'</div><div style="font-size:11px;color:#68D391">+'+ksGain+'% since Apr 2024</div></div>'+
+      '<div class="scard" style="border-top:3px solid '+(dionTot<DION.reduce(function(s,h){return s+h.invested;},0)?'#E53E3E':'#68D391')+'"><div class="sc-lbl">Dion Sharesies</div><div class="sc-val" style="color:#63B3ED">'+fm(dionTot)+'</div></div>'+
+      '<div class="scard" style="border-top:3px solid #68D391"><div class="sc-lbl">Casabella</div><div class="sc-val" style="color:#68D391">'+fm(belleTot)+'</div></div>'+
+      '<div class="scard" style="border-top:3px solid #E53E3E"><div class="sc-lbl">Jonty</div><div class="sc-val" style="color:#E53E3E">'+fm(jontyTot)+'</div></div>'+
+      '<div class="scard" style="border-top:3px solid '+(lottoNet>=0?'#68D391':'#E53E3E')+'"><div class="sc-lbl">Lotto Net</div><div class="sc-val" style="color:'+(lottoNet>=0?'#68D391':'#E53E3E')+'">'+(lottoNet>=0?'+':'')+fm(lottoNet)+'</div></div>'+
+    '</div>'+
+    '<div class="card"><div class="ch"><span class="ct">📈 KiwiSaver — PIE Funds Aggressive · APEX NZ</span>'+
+      '<div style="text-align:right"><div style="font-weight:800;font-size:16px;color:#68D391">'+fm(ksEnd)+'</div><div style="font-size:11px;color:#68D391">+'+ksGain+'% since Apr 2024</div></div></div>'+
+      '<div class="cb">'+
+        '<div style="display:flex;gap:2px;align-items:flex-end;height:80px;margin-bottom:8px">'+bars+'</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:#718096"><span>Apr 2024 · '+fm(ksStart)+'</span><span>Jun 2026 · '+fm(ksEnd)+'</span></div>'+
+        '<div style="margin-top:12px">'+KS.filter(function(k){return k.note;}).map(function(k){return '<div style="font-size:11px;color:#A0AEC0;padding:2px 0">📍 <strong>'+k.date+':</strong> '+k.note+' — '+fm(k.value)+'</div>';}).join('')+'</div>'+
+      '</div></div>'+
+    '<div class="card"><div class="ch"><span class="ct">💡 Investment Recommendations</span>'+
+      '<button class="btn btn-surf btn-sm" onclick="showRecs=!showRecs;render()">'+(showRecs?'▲ Hide':'▼ Show')+'</button></div>'+
+      (showRecs?'<div class="cb"><div style="font-size:12px;color:#718096;margin-bottom:12px">Not financial advice. Based on portfolio data as at 22 Jul 2026.</div>'+recRows+'</div>':'<div style="padding:8px 18px;font-size:12px;color:#718096">Curated NZ and US recommendations based on your portfolios</div>')+
+    '</div>'+
+    sharesCard('💼 Dion Smith',DION,-5.96)+
+    sharesCard('💼 Casabella Smith',BELLE,28.71)+
+    sharesCard('💼 Jonty Smith',JONTY,-12.50)+
+    '<div class="card"><div class="ch"><span class="ct">🎱 Lotto Tracker</span>'+
+      '<span style="font-weight:700;color:'+(lottoNet>=0?'#68D391':'#E53E3E')+'">Net: '+(lottoNet>=0?'+':'')+fm(lottoNet)+'</span></div>'+
+      '<div class="cb">'+
+        '<div class="sgrid" style="margin-bottom:14px">'+
+          '<div class="scard"><div class="sc-lbl">Spent</div><div class="sc-val" style="color:#E53E3E">'+fm(lottoSpend)+'</div></div>'+
+          '<div class="scard"><div class="sc-lbl">Won</div><div class="sc-val" style="color:#68D391">'+fm(lottoWon)+'</div></div>'+
+          '<div class="scard"><div class="sc-lbl">Entries</div><div class="sc-val" style="color:#63B3ED">'+lotto.length+'</div></div>'+
+        '</div>'+
+        (lotto.length?'<div style="overflow-x:auto"><div style="min-width:500px">'+
+          '<div class="row" style="font-size:11px;font-weight:700;color:#718096"><span style="min-width:75px">Date</span><span style="flex:1">Type</span><span style="min-width:55px;text-align:right">Spent</span><span style="min-width:55px;text-align:right">Won</span><span style="min-width:55px;text-align:right">Net</span><span style="min-width:60px"></span></div>'+
+          lottoRows+'</div></div>':'<div style="color:#718096;margin-bottom:12px">No entries yet.</div>')+
+        '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #1E2333">'+
+          (isEditing?'<div style="font-size:12px;color:#ECC94B;margin-bottom:8px">Editing entry — make changes and save</div>':'')+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+            '<input type="date" id="ld" value="'+(isEditing?el.date:td())+'" style="width:130px"/>'+
+            '<select id="lt" style="width:120px"><option'+(isEditing&&el.type==='Lotto'?' selected':'')+'>Lotto</option><option'+(isEditing&&el.type==='Powerball'?' selected':'')+'>Powerball</option><option'+(isEditing&&el.type==='Strike'?' selected':'')+'>Strike</option><option'+(isEditing&&el.type==='Keno'?' selected':'')+'>Keno</option><option'+(isEditing&&el.type==='Scratch Card'?' selected':'')+'>Scratch Card</option><option'+(isEditing&&el.type==='Other'?' selected':'')+'>Other</option></select>'+
+            '<input id="lj" placeholder="Jackpot $m" style="width:80px" value="'+(isEditing?(el.jackpot||''):'')+'"/>'+
+            '<input id="ls" placeholder="Spent $" style="width:80px" value="'+(isEditing?(el.spend||''):'')+'"/>'+
+            '<input id="lw" placeholder="Won $" style="width:80px" value="'+(isEditing?(el.won||''):'')+'"/>'+
+            '<button class="btn btn-purple btn-sm" onclick="saveLotto()">'+(isEditing?'✅ Save':'+ Add')+'</button>'+
+            (isEditing?'<button class="btn btn-surf btn-sm" onclick="editLottoId=null;render()">Cancel</button>':'')+
+          '</div>'+
+        '</div>'+
+      '</div></div>';
+}
+
+function saveLotto(){
+  var entry={date:document.getElementById('ld').value,type:document.getElementById('lt').value,jackpot:document.getElementById('lj').value,spend:document.getElementById('ls').value,won:document.getElementById('lw').value};
+  if(editLottoId!==null){lotto[editLottoId]=entry;editLottoId=null;}else{lotto.push(entry);}
+  sched();render();
+}
+function editLotto(i){editLottoId=i;render();}
+function delLotto(i){lotto.splice(i,1);sched();render();}
+
+document.getElementById('dt').textContent=new Date().toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+try{var d=localStorage.getItem('lhq-wealth');if(d){var p=JSON.parse(d);if(p.lotto)lotto=p.lotto;}}catch(e){}
+render();
+</script>
+</body>
+</html>

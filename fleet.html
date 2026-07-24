@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>2 Lorenzen HQ — Fleet</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Century Gothic','Futura','Trebuchet MS',sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh;font-size:15px;}
+#hdr{position:sticky;top:0;z-index:200;background:#1A1D27;border-bottom:1px solid #2D3748;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+#hdr h1{font-size:17px;font-weight:800;}
+#hdr h1 span{color:#ED8936;}
+.sub{font-size:11px;color:#718096;margin-top:2px;}
+#banner{display:none;padding:10px 20px;text-align:center;font-weight:700;font-size:13px;}
+#main{padding:20px;max-width:1100px;margin:0 auto;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.nav a{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;}
+.nav a.active{background:#ED8936;color:#0F1117;}
+.card{background:#1A1D27;border:1px solid #2D3748;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#20253A;border-bottom:1px solid #2D3748;}
+.ct{font-weight:700;font-size:11px;letter-spacing:0.8px;text-transform:uppercase;color:#A0AEC0;}
+.cb{padding:14px 18px;}
+.chip{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-surf{background:#20253A;color:#A0AEC0;}
+.btn-green{background:#68D391;color:#0F1117;}
+.btn-orange{background:#ED8936;color:#0F1117;}
+input,select{background:#0F1117;border:1px solid #2D3748;border-radius:6px;color:#E2E8F0;padding:7px 10px;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;width:100%;}
+input:focus{border-color:#ED8936;}
+.vcard{margin-bottom:8px;border-radius:8px;overflow:hidden;background:#0F1117;}
+.vhdr{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;}
+.vbody{padding:0 14px 14px;}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #1E2333;flex-wrap:wrap;}
+.row:last-child{border-bottom:none;}
+.sec-lbl{font-size:11px;font-weight:700;color:#A0AEC0;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 6px;border-bottom:1px solid #1E2333;}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div>
+    <h1>2 Lorenzen <span>HQ</span> <span style="font-size:12px;color:#718096;font-weight:400">Fleet</span></h1>
+    <div class="sub" id="dt"></div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-orange btn-sm" onclick="save()">💾 Save</button>
+    <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+  </div>
+</div>
+<div id="banner"></div>
+<div id="main">
+  <div class="nav">
+    <a href="index.html">🏠 Main</a>
+    <a href="budget.html">💰 Budget</a>
+    <a href="fleet.html" class="active">🚗 Fleet</a>
+    <a href="wealth.html">📈 Wealth</a>
+    <a href="home.html">🏡 Home</a>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+var VEHICLES=[
+  {reg:'WPN8',  make:'2005 Ford Falcon XR8',          insurer:'AA', policy:'AMV800258278',value:22500,excess:750,  glass:true, monthly:94.03, odo:258000,ruc:null,   note:'Tyres 245/30/20 F, 265/30/20 R. Rims 20x8.5 F, 20x10 R.'},
+  {reg:'HUC206',make:'2007 Nissan Skyline 250GT',     insurer:'AMI',policy:'MOTA02578930',value:5900, excess:850,  glass:false,monthly:40.99, odo:145000,ruc:null,   note:'Fortnightly $40.99. Under 25 excess. Paint K52 G. Fronts Triangle 225/40/18, Rears Goodride 235/40/18.'},
+  {reg:'GBF633',make:'2011 BMW 118d',                 insurer:'AMI',policy:'MOTA02562942',value:7100, excess:700,  glass:true, monthly:72.64, odo:210000,ruc:206397, note:'Under 25 excess applies.'},
+  {reg:'HJQ910',make:'2007 Nissan Skyline 350GT',     insurer:'AMI',policy:'MOTA02538262',value:11000,excess:850,  glass:false,monthly:92.58, odo:null,  ruc:null,   note:'Tyres 245/35/19 F, 285/35/19 R.'},
+  {reg:'GNE294',make:'2012 Ford Territory Silver',    insurer:'AA', policy:'AMV800295440',value:12000,excess:1000, glass:true, monthly:66.37, odo:335000,ruc:325000, note:''},
+  {reg:'GDG647',make:'2011 Ford Territory Charcoal',  insurer:'AA', policy:'AMV800146604',value:12500,excess:750,  glass:false,monthly:80.03, odo:225000,ruc:216000, note:''},
+  {reg:'RGR355',make:'2007 BMW 335i',                 insurer:'AMI',policy:'MOTA02271503',value:15000,excess:950,  glass:true, monthly:143.44,odo:null,  ruc:null,   note:"Kingston's car. Excess +$500 = $1,450 total. Period: 27 Feb 2026-27 Feb 2027."},
+  {reg:'NAC330',make:'Ford Falcon XR6 Silver',        insurer:'AA', policy:'AMV800258444',value:14500,excess:500,  glass:true, monthly:81.88, odo:null,  ruc:null,   note:"Kingston's car. Deregistered but insured."},
+  {reg:'YS4600',make:'1993 Mercedes 280E',            insurer:'AA', policy:'AMV800258431',value:1700, excess:500,  glass:true, monthly:39.32, odo:null,  ruc:null,   note:'Other driver: Tanya Honore (Feb 1978). Oil change at 250,000km by Kingston 17/6/26.'},
+  {reg:'DLM816',make:'2000 Lexus LS430',              insurer:'AMI',policy:null,           value:4650, excess:500,  glass:false,monthly:28.20, odo:null,  ruc:null,   note:'3rd Party Fire & Theft.'}
+];
+var CARAVANS=[
+  {reg:'Q218K', make:'Caravan (Green)',      note:'NZ Rego. No mechanical WOF. No electrical WOF. Uninsured.'},
+  {reg:'ACC67', make:'1967 ACC Caravan',     note:'No NZ Rego. No mechanical or electrical WOF. Uninsured.'},
+  {reg:'ANG75', make:'1975 Anglo Caravan (mid-grey)',note:'No NZ Rego. No mechanical or electrical WOF. Uninsured.'}
+];
+var SOLD=[
+  {reg:'JFS657',make:'Sold 20 Feb 2026'},
+  {reg:'PDR965',make:'Sold 2026'},
+  {reg:'QTJ74', make:'Sold 28 Apr 2026'}
+];
+
+var vdata={};var open={};var stimer=null;
+
+function initVdata(){
+  VEHICLES.concat(CARAVANS).forEach(function(v){
+    if(!vdata[v.reg])vdata[v.reg]={odo:v.odo||'',ruc:v.ruc||'',wof:'',rego:'',notes:'',history:[]};
+  });
+}
+
+function save(){try{localStorage.setItem('lhq-fleet',JSON.stringify({vdata,savedAt:new Date().toISOString()}));flash('💾 Saved — '+new Date().toLocaleTimeString('en-NZ'));}catch(e){flash('Save failed','#E53E3E');}}
+function sync(){try{var d=localStorage.getItem('lhq-fleet');if(d){var p=JSON.parse(d);if(p.vdata)vdata=p.vdata;initVdata();flash('✅ Loaded — '+new Date(p.savedAt).toLocaleString('en-NZ'));render();}else{flash('No saved data','#ED8936');}}catch(e){flash('Load failed','#E53E3E');}}
+function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
+function flash(msg,col){var b=document.getElementById('banner');b.textContent=msg;b.style.background=col||'#ED8936';b.style.color='#0F1117';b.style.display='block';setTimeout(function(){b.style.display='none';},3000);}
+function fm(n){return '$'+(parseFloat(n)||0).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function td(){return new Date().toISOString().split('T')[0];}
+function dTo(d){if(!d)return null;return Math.ceil((new Date(d)-new Date(td()))/86400000);}
+function fmtD(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'}):''}
+function fmtN(n){return n?(parseFloat(n)||0).toLocaleString('en-NZ'):'—';}
+
+function chip(l,c){return '<span class="chip" style="background:'+c+'22;color:'+c+'">'+l+'</span>';}
+
+function dExp(d,label){
+  var n=dTo(d);if(n===null||!d)return '';
+  var c=n<0?'#E53E3E':n<=30?'#ED8936':n<=90?'#ECC94B':'#68D391';
+  var l=n<0?(label+' EXPIRED '+Math.abs(n)+'d ago'):n<=7?(label+' in '+n+'d'):(label+' '+fmtD(d));
+  return '<span class="chip" style="background:'+c+'22;color:'+c+'">'+l+'</span>';
+}
+
+function vCard(v,isCar){
+  var vd=vdata[v.reg]||{odo:'',ruc:'',wof:'',rego:'',notes:'',history:[]};
+  var ac=isCar?(v.insurer==='AMI'?'#ED8936':'#63B3ED'):'#B794F4';
+  var isOpen=!!open[v.reg];
+  var wofOk=vd.wof&&dTo(vd.wof)>0;var regoOk=vd.rego&&dTo(vd.rego)>0;
+
+  var hdr='<div class="vcard" style="border-left:3px solid '+ac+'">'+
+    '<div class="vhdr" onclick="toggle(\''+v.reg+'\')">'+
+      chip(v.reg,ac)+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:15px;font-weight:600">'+v.make+'</div>'+
+        '<div style="font-size:12px;color:#718096;display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">'+
+          (isCar?'<span>'+v.insurer+' · '+fm(v.monthly)+'/mo</span>':'')+
+          (vd.odo?'<span>'+fmtN(vd.odo)+' km</span>':'')+
+          (vd.wof?dExp(vd.wof,'WOF'):'')+
+          (vd.rego?dExp(vd.rego,'Rego'):'')+
+        '</div>'+
+      '</div>'+
+      (isCar&&v.value?'<span style="font-weight:700;color:#68D391;flex-shrink:0">'+fm(v.value)+'</span>':'')+
+      '<span style="color:#718096;font-size:14px;margin-left:8px;flex-shrink:0">'+(isOpen?'▲':'▼')+'</span>'+
+    '</div>';
+
+  if(!isOpen) return hdr+'</div>';
+
+  var insDetails=isCar?'<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;padding:8px 0;border-bottom:1px solid #1E2333;margin-bottom:10px">'+
+    (v.policy?'<span><span style="color:#718096">Policy: </span>'+v.policy+'</span>':'')+
+    '<span><span style="color:#718096">Excess: </span>'+fm(v.excess)+'</span>'+
+    '<span><span style="color:#718096">Glass: </span><span style="color:'+(v.glass?'#68D391':'#718096')+'">'+(v.glass?'Free replace':'—')+'</span></span>'+
+    (v.note?'<span style="color:#718096;width:100%">'+v.note+'</span>':'')+
+    '</div>':'';
+
+  var odoSection='<div class="sec-lbl">Odometer & RUC</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 0;margin-bottom:6px">'+
+      '<div style="display:flex;gap:6px;align-items:center"><span style="font-size:12px;color:#718096;white-space:nowrap">Odo (km)</span>'+
+        '<input style="width:100px" placeholder="e.g. 258000" value="'+(vd.odo||'')+'" oninput="upd(\''+v.reg+'\',\'odo\',this.value)"/></div>'+
+      (v.ruc!==undefined&&v.ruc!==null||vd.ruc?'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:12px;color:#718096;white-space:nowrap">RUC at (km)</span>'+
+        '<input style="width:100px" placeholder="e.g. 216000" value="'+(vd.ruc||'')+'" oninput="upd(\''+v.reg+'\',\'ruc\',this.value)"/>'+
+        (vd.ruc&&vd.odo?'<span style="font-size:11px;color:'+(parseInt(vd.odo)>parseInt(vd.ruc)?'#E53E3E':'#68D391')+'">'+
+          (parseInt(vd.odo)>parseInt(vd.ruc)?'OVERDUE '+fmtN(parseInt(vd.odo)-parseInt(vd.ruc))+'km':fmtN(parseInt(vd.ruc)-parseInt(vd.odo))+'km left')+
+        '</span>':'')+
+      '</div>':'');
+  odoSection+='</div>';
+
+  var wofSection='<div class="sec-lbl">WOF & Rego — check at vehiclecheck.nzta.govt.nz</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 0">'+
+      '<div style="display:flex;gap:6px;align-items:center"><span style="font-size:12px;color:'+(wofOk?'#68D391':'#718096')+'">WOF</span>'+
+        '<input type="date" style="width:140px" value="'+(vd.wof||'')+'" oninput="upd(\''+v.reg+'\',\'wof\',this.value)"/>'+
+        (vd.wof?dExp(vd.wof,''):'')+'</div>'+
+      '<div style="display:flex;gap:6px;align-items:center"><span style="font-size:12px;color:'+(regoOk?'#68D391':'#718096')+'">Rego</span>'+
+        '<input type="date" style="width:140px" value="'+(vd.rego||'')+'" oninput="upd(\''+v.reg+'\',\'rego\',this.value)"/>'+
+        (vd.rego?dExp(vd.rego,''):'')+'</div>'+
+    '</div>';
+
+  var hist=vd.history||[];
+  var totalB=hist.reduce(function(s,h){return s+(parseFloat(h.budget)||0);},0);
+  var totalA=hist.reduce(function(s,h){return s+(parseFloat(h.actual)||0);},0);
+  var histSection='<div class="sec-lbl" style="margin-top:10px">Spend History'+
+    (hist.length?'<span style="margin-left:10px">Budget: <span style="color:#ECC94B">'+fm(totalB)+'</span> · Actual: <span style="color:'+(totalA>totalB?'#E53E3E':'#68D391')+'">'+fm(totalA)+'</span></span>':'')+
+    '</div>'+
+    hist.map(function(h,i){
+      return '<div class="row">'+
+        '<span style="font-size:11px;color:#718096;min-width:80px;flex-shrink:0">'+h.date+'</span>'+
+        '<span style="flex:1;font-size:13px">'+h.desc+'</span>'+
+        (h.budget?'<span style="font-size:12px;color:#ECC94B">B: '+fm(h.budget)+'</span>':'')+
+        (h.actual?'<span style="font-size:12px;color:'+(parseFloat(h.actual)>parseFloat(h.budget)?'#E53E3E':'#68D391')+'">A: '+fm(h.actual)+'</span>':'')+
+        '<button onclick="delHist(\''+v.reg+'\','+i+')" style="padding:1px 6px;font-size:11px;border:none;border-radius:4px;cursor:pointer;background:rgba(229,62,62,0.15);color:#E53E3E;font-family:inherit">✕</button>'+
+        '</div>';
+    }).join('')+
+    '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'+
+      '<input type="date" id="hd-'+v.reg+'" value="'+td()+'" style="width:130px"/>'+
+      '<input id="hdesc-'+v.reg+'" placeholder="Description" style="flex:2 1 120px"/>'+
+      '<input id="hb-'+v.reg+'" placeholder="Budget $" style="width:80px"/>'+
+      '<input id="ha-'+v.reg+'" placeholder="Actual $" style="width:80px"/>'+
+      '<button class="btn btn-green btn-sm" onclick="addHist(\''+v.reg+'\')">+ Add</button>'+
+    '</div>';
+
+  var notesSection='<div class="sec-lbl" style="margin-top:10px">Notes</div>'+
+    '<input style="width:100%;margin-top:6px" placeholder="Service notes, parts needed..." value="'+(vd.notes||'')+'" oninput="upd(\''+v.reg+'\',\'notes\',this.value)"/>';
+
+  var isCar2=!CARAVANS.find(function(c){return c.reg===v.reg;});
+  if(!isCar2) return hdr+'<div class="vbody"><div style="font-size:12px;color:#ED8936;padding:8px 0;border-bottom:1px solid #1E2333;margin-bottom:10px">'+v.note+'</div>'+notesSection+'</div></div>';
+
+  return hdr+'<div class="vbody">'+insDetails+odoSection+wofSection+histSection+notesSection+'</div></div>';
+}
+
+function toggle(reg){open[reg]=!open[reg];render();}
+function upd(reg,field,val){if(!vdata[reg])vdata[reg]={odo:'',ruc:'',wof:'',rego:'',notes:'',history:[]};vdata[reg][field]=val;sched();}
+function delHist(reg,i){vdata[reg].history.splice(i,1);sched();render();}
+function addHist(reg){
+  var d=document.getElementById('hd-'+reg);var desc=document.getElementById('hdesc-'+reg);
+  var b=document.getElementById('hb-'+reg);var a=document.getElementById('ha-'+reg);
+  if(!desc||!desc.value.trim())return;
+  if(!vdata[reg])vdata[reg]={odo:'',ruc:'',wof:'',rego:'',notes:'',history:[]};
+  vdata[reg].history.push({date:d?d.value:td(),desc:desc.value.trim(),budget:b?b.value:'',actual:a?a.value:''});
+  if(desc)desc.value='';if(b)b.value='';if(a)a.value='';
+  sched();render();
+}
+
+function render(){
+  // Alerts
+  var alerts=[];
+  VEHICLES.forEach(function(v){
+    var vd=vdata[v.reg]||{};
+    if(vd.wof){var d=dTo(vd.wof);if(d!==null&&d<=60)alerts.push({reg:v.reg,type:'WOF',d,date:vd.wof});}
+    if(vd.rego){var d2=dTo(vd.rego);if(d2!==null&&d2<=60)alerts.push({reg:v.reg,type:'Rego',d:d2,date:vd.rego});}
+    if(vd.ruc&&vd.odo&&parseInt(vd.odo)>parseInt(vd.ruc)-2000)alerts.push({reg:v.reg,type:'RUC',d:parseInt(vd.ruc)-parseInt(vd.odo)});
+  });
+
+  var alertBox=alerts.length?'<div class="card" style="border-top:3px solid #E53E3E">'+
+    '<div class="ch"><span class="ct">Alerts ('+alerts.length+')</span></div>'+
+    '<div class="cb">'+alerts.map(function(a){
+      var c=a.d<0?'#E53E3E':a.d<=30?'#ED8936':'#ECC94B';
+      return '<div class="row"><span style="font-weight:700;color:#ED8936;min-width:65px">'+a.reg+'</span>'+
+        '<span style="flex:1">'+a.type+'</span>'+
+        (a.date?'<span class="chip" style="background:'+c+'22;color:'+c+'">'+(a.d<0?'EXPIRED':'Expires '+fmtD(a.date))+'</span>':
+        '<span style="font-size:11px;color:#E53E3E">RUC '+a.d+'km remaining</span>')+
+        '</div>';
+    }).join('')+'</div></div>':'';
+
+  var nzta='<div class="card" style="border-top:3px solid #63B3ED;padding:10px 18px;margin-bottom:16px">'+
+    '<div style="font-size:13px;color:#63B3ED">🔍 <strong>NZTA Check:</strong> Go to <strong>vehiclecheck.nzta.govt.nz</strong> and enter the rego plate. Then enter WOF and rego expiry dates below.</div></div>';
+
+  var totalIns=VEHICLES.reduce(function(s,v){return s+v.monthly;},0);
+  var totalVal=VEHICLES.reduce(function(s,v){return s+v.value;},0);
+
+  var summary='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'+
+    '<div style="flex:1 1 120px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:12px;text-align:center;border-top:3px solid #ED8936"><div style="font-size:10px;color:#718096;margin-bottom:4px">VEHICLES</div><div style="font-size:20px;font-weight:800;color:#ED8936">'+VEHICLES.length+'</div></div>'+
+    '<div style="flex:1 1 120px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:12px;text-align:center;border-top:3px solid #63B3ED"><div style="font-size:10px;color:#718096;margin-bottom:4px">INSURANCE</div><div style="font-size:17px;font-weight:800;color:#63B3ED">'+fm(totalIns)+'/mo</div></div>'+
+    '<div style="flex:1 1 120px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:12px;text-align:center;border-top:3px solid #68D391"><div style="font-size:10px;color:#718096;margin-bottom:4px">FLEET VALUE</div><div style="font-size:17px;font-weight:800;color:#68D391">'+fm(totalVal)+'</div></div>'+
+  '</div>';
+
+  var comp=VEHICLES.filter(function(v){return true;});
+  var vCards=comp.map(function(v){return vCard(v,true);}).join('');
+  var carCards=CARAVANS.map(function(v){return vCard(v,false);}).join('');
+  var soldRows=SOLD.map(function(v){return '<div class="row"><span style="color:#718096;min-width:70px;font-weight:700">'+v.reg+'</span><span style="color:#718096;font-size:13px">'+v.make+'</span></div>';}).join('');
+
+  document.getElementById('content').innerHTML=
+    alertBox+nzta+summary+
+    '<div class="card"><div class="ch"><span class="ct">🚗 Comprehensive — '+comp.length+' vehicles</span></div><div class="cb">'+vCards+'</div></div>'+
+    '<div class="card"><div class="ch"><span class="ct">🚐 Caravans & Trailers</span></div><div class="cb">'+carCards+'</div></div>'+
+    '<div class="card"><div class="ch"><span class="ct">🪦 Sold / Disposed</span></div><div class="cb">'+soldRows+'</div></div>'+
+    '<div class="card" style="padding:14px 18px;border-top:3px solid #68D391"><div style="font-size:13px">🏠 <strong>AMI House & Contents</strong> — Policy HOMA02566246 · $211.12/month · 17 Jul 2026–17 Jul 2027</div></div>';
+}
+
+document.getElementById('dt').textContent=new Date().toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+initVdata();
+try{var d=localStorage.getItem('lhq-fleet');if(d){var p=JSON.parse(d);if(p.vdata){vdata=p.vdata;initVdata();}}}catch(e){}
+render();
+</script>
+</body>
+</html>
