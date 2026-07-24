@@ -83,7 +83,16 @@ input:focus,select:focus{border-color:#63B3ED;}
   <button class="tb" onclick="go('quarterly',this)">Quarterly</button>
   <button class="tb" onclick="go('notes',this)">Notes</button>
 </div>
-<div id="main"><div id="content"></div></div>
+<div id="main">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <a href="index.html" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#63B3ED;color:#0F1117;font-family:inherit;">🏠 Main</a>
+    <a href="budget.html" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;">💰 Budget</a>
+    <a href="fleet.html" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;">🚗 Fleet</a>
+    <a href="wealth.html" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;">📈 Wealth</a>
+    <a href="home.html" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;background:#20253A;color:#A0AEC0;font-family:inherit;">🏡 Home</a>
+  </div>
+  <div id="content"></div>
+</div>
 
 <div id="em" class="modal-bg" style="display:none;">
   <div class="modal">
@@ -227,7 +236,35 @@ function toggleT(id){
   tasks=renum(tasks.map(function(t){return t.id===id?Object.assign({},t,{done:!t.done,dd:!t.done?td():''}):t;}));
   sched();render();
 }
-function togglePaid(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{paid:!t.paid}):t;});sched();render();}
+function togglePaid(id){
+  var t=tasks.find(function(x){return x.id===id;});
+  if(!t) return;
+  var nowPaid=!t.paid;
+  tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{paid:nowPaid}):x;});
+  // When marking as paid, auto-create a collection task if not already there
+  if(nowPaid){
+    var ref=t.invoiceNo||t.accountName||t.title;
+    var colTitle='Collect items — '+ref;
+    var alreadyExists=tasks.some(function(x){return x.title===colTitle;});
+    if(!alreadyExists){
+      var newTask={
+        id:Date.now(),
+        title:colTitle,
+        priority:'today',
+        cat:'Bills & Finance',
+        due:td(),
+        done:false,dd:'',order:999,
+        accountName:t.accountName||'',
+        accountNo:t.accountNo||'',
+        invoiceNo:t.invoiceNo||'',
+        amount:t.amount||'',
+        paid:false,collected:false
+      };
+      tasks=renum(tasks.concat([newTask]));
+    }
+  }
+  sched();render();
+}
 function toggleCol(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{collected:!t.collected}):t;});sched();render();}
 
 function mv(id,dir){
@@ -295,10 +332,16 @@ function trow(t){
        '</div>';
   }
   var ab='';
-  if(isA){
+  if(isA&&!t.done){
     ab='<div class="ab">'+
-      '<button onclick="togglePaid('+t.id+')" style="background:'+(t.paid?'rgba(104,211,145,0.2)':'#20253A')+';color:'+(t.paid?'#68D391':'#718096')+'">'+(t.paid?'✅ Paid':'⬜ Paid')+'</button>'+
-      '<button onclick="toggleCol('+t.id+')" style="background:'+(t.collected?'rgba(99,179,237,0.2)':'#20253A')+';color:'+(t.collected?'#63B3ED':'#718096')+'">'+(t.collected?'📦 Collected':'⬜ Collected')+'</button>'+
+      '<button onclick="event.stopPropagation();togglePaid('+t.id+')" style="background:'+(t.paid?'rgba(104,211,145,0.2)':'#20253A')+';color:'+(t.paid?'#68D391':'#718096')+'">'+(t.paid?'✅ Paid':'⬜ Paid')+'</button>'+
+      '<button onclick="event.stopPropagation();toggleCol('+t.id+')" style="background:'+(t.collected?'rgba(99,179,237,0.2)':'#20253A')+';color:'+(t.collected?'#63B3ED':'#718096')+'">'+(t.collected?'📦 Collected':'⬜ Collected')+'</button>'+
+      '</div>';
+  } else if(isA&&t.done){
+    // Show status summary only when done
+    ab='<div style="display:flex;gap:6px;margin-top:4px">'+
+      (t.paid?'<span style="font-size:10px;font-weight:700;background:rgba(104,211,145,0.2);color:#68D391;border-radius:4px;padding:2px 7px">✅ Paid</span>':'')+
+      (t.collected?'<span style="font-size:10px;font-weight:700;background:rgba(99,179,237,0.2);color:#63B3ED;border-radius:4px;padding:2px 7px">📦 Collected</span>':'')+
       '</div>';
   }
   return '<div class="tr'+(t.done?' done':'')+'" style="border-left:3px solid '+(t.done?'#68D391':pc)+';background:'+(t.done?'rgba(104,211,145,0.05)':'rgba(0,0,0,0.15)')+'">'+
