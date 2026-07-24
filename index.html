@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>2 Lorenzen HQ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Century Gothic','Futura','Trebuchet MS',sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh;font-size:15px;}
+#hdr{position:sticky;top:0;z-index:200;background:#1A1D27;border-bottom:1px solid #2D3748;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+#hdr h1{font-size:17px;font-weight:800;}
+#hdr h1 span{color:#63B3ED;}
+#hdr .sub{font-size:11px;color:#718096;margin-top:2px;}
+#tabs{position:sticky;top:57px;z-index:199;background:#1A1D27;border-bottom:1px solid #2D3748;display:flex;overflow-x:auto;padding:0 16px;box-shadow:0 2px 4px rgba(0,0,0,0.4);scrollbar-width:none;}
+#tabs::-webkit-scrollbar{display:none;}
+.tb{padding:11px 16px;font-size:12px;font-weight:400;color:#718096;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;}
+.tb.on{color:#63B3ED;font-weight:700;border-bottom-color:#63B3ED;}
+#banner{display:none;padding:10px 20px;text-align:center;font-weight:700;font-size:13px;position:sticky;top:57px;z-index:198;}
+#main{padding:20px;max-width:1100px;margin:0 auto;}
+.card{background:#1A1D27;border:1px solid #2D3748;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#20253A;border-bottom:1px solid #2D3748;}
+.ct{font-weight:700;font-size:11px;letter-spacing:0.8px;text-transform:uppercase;color:#A0AEC0;}
+.cb{padding:14px 18px;}
+.chip{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-green{background:#68D391;color:#0F1117;}
+.btn-blue{background:#63B3ED;color:#0F1117;}
+.btn-surf{background:#20253A;color:#A0AEC0;}
+.btn-red{background:rgba(229,62,62,0.2);color:#E53E3E;}
+input,select,textarea{background:#0F1117;border:1px solid #2D3748;border-radius:6px;color:#E2E8F0;padding:7px 10px;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;width:100%;}
+input:focus,select:focus{border-color:#63B3ED;}
+.tr{display:flex;align-items:flex-start;padding:9px 6px;margin-bottom:4px;border-radius:6px;}
+.tr.done{opacity:0.55;}
+.mv{display:flex;flex-direction:column;gap:2px;margin-right:6px;flex-shrink:0;padding-top:3px;}
+.mv button{padding:1px 5px;font-size:11px;line-height:1;background:#20253A;color:#A0AEC0;border:none;border-radius:3px;cursor:pointer;font-family:inherit;}
+.tnum{font-size:11px;font-weight:700;flex-shrink:0;min-width:18px;margin-right:8px;padding-top:3px;}
+.tc{flex:1;min-width:0;cursor:pointer;}
+.tt{font-size:15px;word-break:break-word;line-height:1.4;}
+.tmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;}
+.tbill{display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;}
+.tck{font-size:20px;cursor:pointer;flex-shrink:0;padding:1px 16px 0 8px;}
+.teb{padding:4px 10px;font-size:12px;flex-shrink:0;margin-top:1px;background:#20253A;color:#A0AEC0;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:700;}
+.dp{font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;margin-left:6px;white-space:nowrap;}
+.ab{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;}
+.ab button{font-size:11px;padding:2px 8px;border-radius:4px;border:none;cursor:pointer;font-family:inherit;font-weight:700;}
+.add-row{margin-top:12px;padding-top:12px;border-top:1px solid #1E2333;}
+.add-f{display:flex;gap:8px;flex-wrap:wrap;}
+.add-f input,.add-f select{flex:1;min-width:120px;}
+.nr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1E2333;}
+.nr:last-child{border-bottom:none;}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;}
+.modal{background:#1A1D27;border:1px solid #2D3748;border-radius:12px;padding:24px;max-width:440px;width:90%;}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:12px;}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.mrow input,.mrow select{flex:1;min-width:120px;}
+.mac{display:flex;gap:10px;margin-top:14px;}
+.rec{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #1E2333;align-items:flex-start;}
+.rec:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div>
+    <h1>2 Lorenzen <span>HQ</span></h1>
+    <div class="sub" id="dt"></div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <span class="chip" id="uc" style="display:none;background:rgba(229,62,62,0.2);color:#E53E3E;"></span>
+    <span class="chip" id="dc" style="display:none;background:rgba(104,211,145,0.2);color:#68D391;"></span>
+    <button class="btn btn-green btn-sm" onclick="save()">💾 Save</button>
+    <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+  </div>
+</div>
+<div id="banner"></div>
+<div id="tabs">
+  <button class="tb on" onclick="go('daily',this)">Daily</button>
+  <button class="tb" onclick="go('weekly',this)">Weekly</button>
+  <button class="tb" onclick="go('monthly',this)">Monthly</button>
+  <button class="tb" onclick="go('quarterly',this)">Quarterly</button>
+  <button class="tb" onclick="go('notes',this)">Notes</button>
+</div>
+<div id="main"><div id="content"></div></div>
+
+<div id="em" class="modal-bg" style="display:none;">
+  <div class="modal">
+    <h3>Edit Task</h3>
+    <div class="mrow"><input id="et" placeholder="Task title"/></div>
+    <div class="mrow">
+      <select id="ep"><option value="urgent">🔴 Urgent</option><option value="today">🟠 Today</option><option value="week">🟡 This Week</option><option value="month">🟢 Month</option><option value="low">⚪ Low</option></select>
+      <select id="ec"><option>Bills & Finance</option><option>Household</option><option>DIY</option><option>Appointments & Health</option><option>Shopping & Errands</option><option>Car Projects</option><option>Sell / List</option><option>Travel & Events</option><option>General</option></select>
+    </div>
+    <div class="mrow"><input id="ed" type="date"/></div>
+    <div class="mrow"><input id="ea" placeholder="Account name"/><input id="en2" placeholder="Account #"/></div>
+    <div class="mrow"><input id="ei" placeholder="Invoice #"/><input id="em2" placeholder="Amount $"/></div>
+    <div class="mac">
+      <button class="btn btn-green" onclick="saveEdit()">✅ Save</button>
+      <button class="btn btn-surf" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-red" onclick="delTask()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SHEET_ID='1-yt41r60ERYv38G1TY_1GUFg8FA9c18ALeCp78mfj38';
+var SHEET='Tasks';
+var tasks=[];var dnotes=[];var pnotes=[];var eid=null;var cur='daily';var stimer=null;
+
+var PO=['urgent','today','week','month','low'];
+var PC={urgent:'#E53E3E',today:'#ED8936',week:'#ECC94B',month:'#68D391',low:'#718096'};
+var PL={urgent:'🔴 Urgent',today:'🟠 Today',week:'🟡 This Week',month:'🟢 This Month',low:'⚪ Low'};
+var CATS=['Bills & Finance','Household','DIY','Appointments & Health','Shopping & Errands','Car Projects','Sell / List','Travel & Events','General'];
+
+var IT=[
+  {id:2,title:"All About Auctions invoice $457.28 — confirm paid (19 Jul)",priority:"urgent",due:"2026-07-22",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"All About Auctions",accountNo:"",invoiceNo:"",amount:"457.28",paid:false,collected:false},
+  {id:3,title:"Direct Tech July statement — review",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Direct Tech",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:4,title:"AMI policy amendment MOTA02578930 — check what changed",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"AMI",accountNo:"MOTA02578930",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:5,title:"Doctor appointment — foot/heel injury",priority:"urgent",due:"",cat:"Appointments & Health",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:6,title:"Washing in",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:7,title:"Washing out",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:8,title:"Fold washing",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:7,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:9,title:"One NZ bill — pay before due date",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"One NZ",accountNo:"447660288",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:10,title:"Thornton Auctions — invoice #133147-051-01 pay ASAP",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133147-051-01",amount:"",paid:false,collected:false},
+  {id:44,title:"Thornton Auctions — invoice #133146-060-03 (23 Jul)",priority:"today",due:"2026-07-26",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133146-060-03",amount:"",paid:false,collected:false},
+  {id:11,title:"2 Degrees bill — confirm paid",priority:"today",due:"2026-07-15",cat:"Bills & Finance",done:false,dd:"",order:4,accountName:"2 Degrees",accountNo:"",invoiceNo:"19402725",amount:"",paid:false,collected:false},
+  {id:12,title:"Chartwell key guy — WPN8, HUC206, YS4600 + fobs",priority:"week",due:"",cat:"Car Projects",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:13,title:"Van Ameyde insurance claim — email Kingston story/pics",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:14,title:"Vero/Tania insurance claim — dispute email + valuation",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:15,title:"Register Jonty — Rotorua basketball tournament",priority:"week",due:"",cat:"General",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:16,title:"Switch Casabella: One NZ ($70) to 2 Degrees ($35)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:17,title:"Air NZ booking ref 4YZ7SH — confirm itinerary",priority:"week",due:"",cat:"Travel & Events",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:18,title:"AMI House & Contents — review policy",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:7,accountName:"AMI",accountNo:"HOMA02566246",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:19,title:"Kiwibank statement July — review online",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:8,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:20,title:"E*TRADE/Morgan Stanley statement (acct x8795)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:9,accountName:"E*TRADE",accountNo:"x8795",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:45,title:"Thornton Auctions — invoice #133145-041-05 (14 Jul)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:10,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133145-041-05",amount:"",paid:false,collected:false},
+  {id:46,title:"Thornton Auctions — invoice #133144-012-02 (7 Jul)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:11,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133144-012-02",amount:"",paid:false,collected:false},
+  {id:47,title:"Thornton Auctions — invoice #133137-021-04 (30 Jun)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:12,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133137-021-04",amount:"",paid:false,collected:false},
+  {id:48,title:"Thornton Auctions — invoice #133132-004-02 (30 Jun)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:13,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133132-004-02",amount:"",paid:false,collected:false},
+  {id:21,title:"WOW tickets — book Wed/Thu show Sep/Oct",priority:"month",due:"2026-08-15",cat:"Travel & Events",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:22,title:"WOW accommodation — Museum Hotel Wellington",priority:"month",due:"",cat:"Travel & Events",done:false,dd:"",order:2,accountName:"Museum Hotel",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:23,title:"Laundry reno — get quotes",priority:"month",due:"",cat:"DIY",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:24,title:"WPN8 transmission service $500",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:25,title:"WPN8 front brake rotors and pads $720",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:39,title:"3 Guys Gas $170 — due 20 Aug",priority:"low",due:"2026-08-20",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"3 Guys Gas",accountNo:"",invoiceNo:"",amount:"170",paid:false,collected:false},
+  {id:40,title:"WPN8 respray matte black $1,650 August",priority:"low",due:"2026-08-01",cat:"Car Projects",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
+  {id:41,title:"Gumboot Rally — confirm dates and budget $1,000",priority:"low",due:"",cat:"Travel & Events",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false}
+];
+
+var IN=[
+  {id:1,text:"Air NZ ref 4YZ7SH — confirm itinerary",done:false,dd:""},
+  {id:2,text:"WOW 2026: 17 Sep-4 Oct TSB Arena — book Wed/Thu",done:false,dd:""},
+  {id:3,text:"WOW: Museum Hotel Wellington confirmed",done:false,dd:""},
+  {id:4,text:"Enter WOF and Rego dates in HQ Fleet",done:false,dd:""},
+  {id:5,text:"Confirm Casabella 2 Degrees switch",done:false,dd:""},
+  {id:6,text:"Gumboot Rally — confirm dates",done:false,dd:""}
+];
+
+function td(){return new Date().toISOString().split('T')[0];}
+function daysTo(d){if(!d)return null;return Math.ceil((new Date(d)-new Date(td()))/86400000);}
+function fmtD(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short'}):''}
+
+function dpill(d){
+  var n=daysTo(d);if(n===null||!d)return '';
+  var c=n<0?'#E53E3E':n===0?'#E53E3E':n<=7?'#ED8936':'#ECC94B';
+  var l=n<0?('Overdue '+Math.abs(n)+'d'):n===0?'Due TODAY':('Due '+fmtD(d)+' (in '+n+'d)');
+  return '<span class="dp" style="background:'+c+'22;color:'+c+'">'+l+'</span>';
+}
+function chip(lbl,col){return '<span class="chip" style="background:'+col+'22;color:'+col+'">'+lbl+'</span>';}
+
+function renum(list){
+  var c={};
+  return list.map(function(t){
+    if(t.done)return Object.assign({},t,{order:999});
+    c[t.priority]=(c[t.priority]||0)+1;
+    return Object.assign({},t,{order:c[t.priority]});
+  });
+}
+
+function banner(msg,col){
+  var b=document.getElementById('banner');
+  b.textContent=msg;b.style.background=col||'#68D391';b.style.color='#0F1117';b.style.display='block';
+  setTimeout(function(){b.style.display='none';},3000);
+}
+
+function chips(){
+  var u=tasks.filter(function(t){return !t.done&&t.priority==='urgent';}).length;
+  var d=tasks.filter(function(t){return t.done;}).length;
+  var uc=document.getElementById('uc');var dc=document.getElementById('dc');
+  if(u>0){uc.textContent='🔴 '+u+' urgent';uc.style.display='';}else{uc.style.display='none';}
+  if(d>0){dc.textContent='✅ '+d+' done';dc.style.display='';}else{dc.style.display='none';}
+}
+
+function save(){
+  try{
+    localStorage.setItem('lhq-t',JSON.stringify(tasks));
+    localStorage.setItem('lhq-n',JSON.stringify(dnotes));
+    localStorage.setItem('lhq-p',JSON.stringify(pnotes));
+    localStorage.setItem('lhq-s',new Date().toISOString());
+    banner('💾 Saved — '+new Date().toLocaleTimeString('en-NZ'));
+  }catch(e){banner('⚠️ Save failed','#ED8936');}
+}
+
+function sync(){
+  try{
+    var t=localStorage.getItem('lhq-t');
+    var n=localStorage.getItem('lhq-n');
+    var p=localStorage.getItem('lhq-p');
+    var s=localStorage.getItem('lhq-s');
+    if(t){
+      tasks=JSON.parse(t);
+      if(n)dnotes=JSON.parse(n);
+      if(p)pnotes=JSON.parse(p);
+      banner('✅ Loaded — saved '+new Date(s).toLocaleString('en-NZ'));
+      render();
+    }else{
+      banner('No saved data found','#ED8936');
+    }
+  }catch(e){banner('⚠️ Could not load saved data','#ED8936');}
+}
+
+function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
+
+function toggleT(id){
+  tasks=renum(tasks.map(function(t){return t.id===id?Object.assign({},t,{done:!t.done,dd:!t.done?td():''}):t;}));
+  sched();render();
+}
+function togglePaid(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{paid:!t.paid}):t;});sched();render();}
+function toggleCol(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{collected:!t.collected}):t;});sched();render();}
+
+function mv(id,dir){
+  var t=tasks.find(function(x){return x.id===id;});if(!t||t.done)return;
+  var g=tasks.filter(function(x){return x.priority===t.priority&&!x.done;}).sort(function(a,b){return a.order-b.order;});
+  var i=g.findIndex(function(x){return x.id===id;});var ni=i+dir;
+  if(ni<0||ni>=g.length)return;
+  var nb=g[ni];
+  tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{order:nb.order}):x.id===nb.id?Object.assign({},x,{order:t.order}):x;});
+  sched();render();
+}
+
+function addT(p){
+  var ti=document.getElementById('ai-'+p);
+  var ci=document.getElementById('ac-'+p);
+  var di=document.getElementById('ad-'+p);
+  var ttl=(ti?ti.value:'').trim();if(!ttl)return;
+  var nt={id:Date.now(),title:ttl,priority:p,cat:ci?ci.value:'General',due:di?di.value:'',done:false,dd:'',order:999,accountName:'',accountNo:'',invoiceNo:'',amount:'',paid:false,collected:false};
+  tasks=renum(tasks.concat([nt]));
+  if(ti)ti.value='';if(di)di.value='';
+  sched();render();
+}
+
+function openEdit(id){
+  var t=tasks.find(function(x){return x.id===id;});if(!t)return;
+  eid=id;
+  document.getElementById('et').value=t.title||'';
+  document.getElementById('ep').value=t.priority||'week';
+  document.getElementById('ec').value=t.cat||'General';
+  document.getElementById('ed').value=t.due||'';
+  document.getElementById('ea').value=t.accountName||'';
+  document.getElementById('en2').value=t.accountNo||'';
+  document.getElementById('ei').value=t.invoiceNo||'';
+  document.getElementById('em2').value=t.amount||'';
+  document.getElementById('em').style.display='flex';
+}
+function saveEdit(){
+  if(!eid)return;
+  tasks=renum(tasks.map(function(t){
+    return t.id===eid?Object.assign({},t,{
+      title:document.getElementById('et').value,
+      priority:document.getElementById('ep').value,
+      cat:document.getElementById('ec').value,
+      due:document.getElementById('ed').value,
+      accountName:document.getElementById('ea').value,
+      accountNo:document.getElementById('en2').value,
+      invoiceNo:document.getElementById('ei').value,
+      amount:document.getElementById('em2').value
+    }):t;
+  }));
+  closeModal();sched();render();
+}
+function delTask(){if(!eid)return;tasks=renum(tasks.filter(function(t){return t.id!==eid;}));closeModal();sched();render();}
+function closeModal(){document.getElementById('em').style.display='none';eid=null;}
+
+function trow(t){
+  var pc=PC[t.priority]||'#718096';
+  var isA=t.accountName&&t.accountName.toLowerCase().indexOf('auction')>=0;
+  var bd='';
+  if(t.accountName||t.accountNo||t.invoiceNo||t.amount){
+    bd='<div class="tbill">'+(t.accountName?'<span style="color:#63B3ED">'+t.accountName+'</span>':'')+
+       (t.accountNo?'<span style="color:#A0AEC0">Acct: '+t.accountNo+'</span>':'')+
+       (t.invoiceNo?'<span style="color:#ECC94B;font-weight:700">Inv: #'+t.invoiceNo+'</span>':'')+
+       (t.amount?'<span style="color:#68D391;font-weight:700">$'+t.amount+'</span>':'')+
+       '</div>';
+  }
+  var ab='';
+  if(isA){
+    ab='<div class="ab">'+
+      '<button onclick="togglePaid('+t.id+')" style="background:'+(t.paid?'rgba(104,211,145,0.2)':'#20253A')+';color:'+(t.paid?'#68D391':'#718096')+'">'+(t.paid?'✅ Paid':'⬜ Paid')+'</button>'+
+      '<button onclick="toggleCol('+t.id+')" style="background:'+(t.collected?'rgba(99,179,237,0.2)':'#20253A')+';color:'+(t.collected?'#63B3ED':'#718096')+'">'+(t.collected?'📦 Collected':'⬜ Collected')+'</button>'+
+      '</div>';
+  }
+  return '<div class="tr'+(t.done?' done':'')+'" style="border-left:3px solid '+(t.done?'#68D391':pc)+';background:'+(t.done?'rgba(104,211,145,0.05)':'rgba(0,0,0,0.15)')+'">'+
+    '<div class="mv">'+(t.done?'<span style="width:28px;display:inline-block"></span>':'<button onclick="mv('+t.id+',-1)">▲</button><button onclick="mv('+t.id+',1)">▼</button>')+'</div>'+
+    (!t.done?'<span class="tnum" style="color:'+pc+'">'+t.order+'</span>':'')+
+    '<div class="tc" onclick="toggleT('+t.id+')">'+
+      '<div class="tt'+(t.done?' done-text':'')+(t.done?' style="text-decoration:line-through;color:#718096"':'')+'">'+t.title+'</div>'+
+      bd+
+      '<div class="tmeta">'+(t.due?dpill(t.due):'')+
+        (t.cat?'<span class="chip" style="background:#1E2333;color:#A0AEC0">'+t.cat+'</span>':'')+
+        (t.done&&t.dd?'<span style="font-size:10px;color:#718096">&#10003; '+t.dd+'</span>':'')+
+      '</div>'+ab+
+    '</div>'+
+    '<span class="tck" onclick="toggleT('+t.id+')">'+(t.done?'✅':'⬜')+'</span>'+
+    '<button class="teb" onclick="openEdit('+t.id+')">✏️</button>'+
+  '</div>';
+}
+
+function addForm(p,lbl){
+  return '<div class="add-row"><div class="add-f">'+
+    '<input id="ai-'+p+'" placeholder="Add '+lbl+' task..." onkeydown="if(event.key===\'Enter\')addT(\''+p+'\')"/>'+
+    '<select id="ac-'+p+'">'+CATS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select>'+
+    '<input id="ad-'+p+'" type="date"/>'+
+    '<button class="btn btn-blue" onclick="addT(\''+p+'\')">+ Add</button>'+
+  '</div></div>';
+}
+
+function sec(p,showAdd){
+  var col=PC[p];var lbl=PL[p];
+  var items=tasks.filter(function(t){return t.priority===p&&!t.done;}).sort(function(a,b){return a.order-b.order;});
+  return '<div class="card" style="border-top:3px solid '+col+'">'+
+    '<div class="ch"><span class="ct">'+lbl+'</span>'+chip(items.length+' open',col)+'</div>'+
+    '<div class="cb">'+(items.length===0?'<div style="color:#718096;font-size:14px">Nothing here 🎉</div>':'')+
+    items.map(trow).join('')+
+    (showAdd?addForm(p,lbl):'')+
+    '</div></div>';
+}
+
+var RECS={
+  daily:[
+    {i:'📧',t:'Check Gmail for bills',d:'Thornton Auctions full invoice number in subject line e.g. 133146-060-03',p:'high'},
+    {i:'✅',t:'Work through Urgent list',d:'Anything overdue needs action today.',p:'high'},
+    {i:'🎟',t:'WOW 2026 tickets',d:'Book Wed/Thu TSB Arena Wellington. Museum Hotel confirmed.',p:'medium'},
+    {i:'🔑',t:'Chartwell key guy',d:'WPN8, HUC206, YS4600 + fobs. Get budget quote first.',p:'medium'}
+  ],
+  weekly:[
+    {i:'💳',t:'Bills due this week',d:'Check both ACC and AIA income streams.',p:'high'},
+    {i:'🔄',t:'Upload bank CSV Wednesday',d:'Auto-ticks paid items in HQ Budget.',p:'high'}
+  ],
+  monthly:[
+    {i:'🏦',t:'Mortgage DDs',d:'KB -20 ($764.64) and -21 ($798.74) alternating weekly.',p:'medium'},
+    {i:'🚗',t:'Vehicle maintenance',d:'Check WOF and rego in HQ Fleet.',p:'medium'}
+  ],
+  quarterly:[
+    {i:'💰',t:'WDC Rates $858',d:'Check current quarter is paid.',p:'high'},
+    {i:'🚗',t:'WPN8 respray August',d:'$1,650 budgeted — confirm booking.',p:'high'}
+  ]
+};
+
+function recPanel(tab){
+  var r=RECS[tab]||[];var h=r.filter(function(x){return x.p==='high';}).length;
+  var col={high:'#E53E3E',medium:'#ECC94B',low:'#63B3ED'};
+  return '<div class="card" style="border-top:3px solid #B794F4;margin-bottom:16px">'+
+    '<div class="ch"><span class="ct">💡 Recommendations</span>'+
+    '<button class="btn btn-surf btn-sm" onclick="var b=this.parentNode.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';this.textContent=b.style.display===\'none\'?\'▼ Show\':\'▲ Hide\'">▼ Show</button></div>'+
+    '<div style="display:none">'+
+    r.map(function(x){return '<div class="rec"><span style="font-size:20px;flex-shrink:0">'+x.i+'</span><div style="flex:1"><div style="font-weight:700">'+x.t+'</div><div style="font-size:13px;color:#A0AEC0;margin-top:2px">'+x.d+'</div></div>'+chip(x.p,col[x.p])+'</div>';}).join('')+
+    '</div>'+
+    '<div style="padding:8px 18px;font-size:12px;color:#718096">'+h+' high-priority item'+(h!==1?'s':'')+' this week</div>'+
+  '</div>';
+}
+
+function doneSection(done){
+  if(!done.length)return '';
+  return '<div class="card"><div class="ch"><span class="ct">✅ Completed ('+done.length+')</span>'+
+    '<button class="btn btn-surf btn-sm" onclick="var b=this.parentNode.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\'">Show</button></div>'+
+    '<div style="display:none" class="cb">'+done.map(trow).join('')+'</div></div>';
+}
+
+function renderDaily(){
+  var urgent=tasks.filter(function(t){return t.priority==='urgent'&&!t.done;}).sort(function(a,b){return a.order-b.order;});
+  var today2=tasks.filter(function(t){return t.priority==='today'&&!t.done;}).sort(function(a,b){return a.order-b.order;});
+  var done=tasks.filter(function(t){return t.done;});
+  var notesSec='<div class="card" style="border-left:3px solid #ECC94B">'+
+    '<div class="ch"><span class="ct">📌 Notes for Dion</span>'+chip(dnotes.filter(function(n){return n.done;}).length+' done','#68D391')+'</div>'+
+    '<div class="cb">'+dnotes.map(function(n){
+      return '<div class="nr" style="opacity:'+(n.done?0.5:1)+'">'+
+        '<span style="font-size:18px;cursor:pointer" onclick="tgNote('+n.id+')">'+(n.done?'✅':'⬜')+'</span>'+
+        '<span style="flex:1;font-size:15px;color:'+(n.done?'#718096':'#A0AEC0')+';text-decoration:'+(n.done?'line-through':'none')+'">'+n.text+'</span>'+
+        '</div>';
+    }).join('')+'</div></div>';
+  return recPanel('daily')+
+    '<div style="display:flex;align-items:center;gap:12px;background:#1A1D27;border:1px solid #2D3748;border-radius:8px;padding:10px 16px;margin-bottom:14px">'+
+    '<span style="font-size:20px">📱</span><div><div style="font-weight:700">Check: WhatsApp · Messenger · SMS</div><div style="color:#718096;font-size:12px">Add urgent items not yet in dashboard.</div></div></div>'+
+    notesSec+sec('urgent',true)+(today2.length?sec('today',true):'')+doneSection(done);
+}
+
+function renderWeekly(){
+  var open=tasks.filter(function(t){return !t.done;});
+  var done=tasks.filter(function(t){return t.done;});
+  var grouped=PO.filter(function(p){return open.some(function(t){return t.priority===p;});});
+  return recPanel('weekly')+grouped.map(function(p){return sec(p,true);}).join('')+
+    (open.length===0?'<div class="card"><div class="cb" style="text-align:center;color:#718096">All tasks complete! 🎉</div></div>':'')+doneSection(done);
+}
+
+function renderMonthly(){
+  var open=tasks.filter(function(t){return !t.done;}).sort(function(a,b){var d=PO.indexOf(a.priority)-PO.indexOf(b.priority);return d!==0?d:a.order-b.order;});
+  var done=tasks.filter(function(t){return t.done;});
+  return recPanel('monthly')+
+    '<div class="card"><div class="ch"><span class="ct">📋 All Open Tasks ('+open.length+')</span></div>'+
+    '<div class="cb">'+open.map(trow).join('')+addForm('month','monthly task')+'</div></div>'+doneSection(done);
+}
+
+function renderQuarterly(){
+  var low=tasks.filter(function(t){return t.priority==='low'&&!t.done;}).sort(function(a,b){return a.order-b.order;});
+  var done=tasks.filter(function(t){return t.done;});
+  return recPanel('quarterly')+
+    '<div class="card"><div class="ch"><span class="ct">⚪ Low Priority Tasks</span></div>'+
+    '<div class="cb">'+low.map(trow).join('')+addForm('low','low priority task')+'</div></div>'+doneSection(done);
+}
+
+function renderNotes(){
+  return '<div class="card"><div class="ch"><span class="ct">📝 Notes</span></div><div class="cb">'+
+    '<div style="display:flex;gap:8px;margin-bottom:14px">'+
+    '<input id="ni" placeholder="Add a note..." onkeydown="if(event.key===\'Enter\')addNote()"/>'+
+    '<button class="btn btn-blue" onclick="addNote()">+ Add</button></div>'+
+    (pnotes.length===0?'<div style="color:#718096">No notes yet.</div>':'')+
+    pnotes.map(function(n){
+      return '<div class="nr" style="opacity:'+(n.done?0.5:1)+'">'+
+        '<span style="font-size:18px;cursor:pointer" onclick="tgPN('+n.id+')">'+(n.done?'✅':'⬜')+'</span>'+
+        '<span style="flex:1;font-size:15px;text-decoration:'+(n.done?'line-through':'none')+'">'+n.text+'</span>'+
+        '<span style="font-size:11px;color:#718096">'+(n.createdAt||'')+'</span>'+
+        '<button class="btn btn-surf btn-sm" onclick="delPN('+n.id+')" style="padding:2px 7px;margin-left:8px">✕</button>'+
+        '</div>';
+    }).join('')+
+  '</div></div>';
+}
+
+function tgNote(id){dnotes=dnotes.map(function(n){return n.id===id?Object.assign({},n,{done:!n.done,dd:!n.done?td():''}):n;});sched();render();}
+function addNote(){var el=document.getElementById('ni');var t=(el?el.value:'').trim();if(!t)return;pnotes=pnotes.concat([{id:Date.now(),text:t,done:false,dd:'',createdAt:td()}]);if(el)el.value='';sched();render();}
+function tgPN(id){pnotes=pnotes.map(function(n){return n.id===id?Object.assign({},n,{done:!n.done}):n;});sched();render();}
+function delPN(id){pnotes=pnotes.filter(function(n){return n.id!==id;});sched();render();}
+
+function render(){
+  var html='';
+  if(cur==='daily')html=renderDaily();
+  else if(cur==='weekly')html=renderWeekly();
+  else if(cur==='monthly')html=renderMonthly();
+  else if(cur==='quarterly')html=renderQuarterly();
+  else if(cur==='notes')html=renderNotes();
+  document.getElementById('content').innerHTML=html;
+  chips();
+}
+
+function go(tab,btn){
+  cur=tab;
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  render();
+}
+
+document.getElementById('dt').textContent=new Date().toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+// Load saved data or use defaults
+try{
+  var st=localStorage.getItem('lhq-t');
+  if(st){
+    tasks=JSON.parse(st);
+    var sn=localStorage.getItem('lhq-n');var sp=localStorage.getItem('lhq-p');
+    if(sn)dnotes=JSON.parse(sn);else dnotes=JSON.parse(JSON.stringify(IN));
+    if(sp)pnotes=JSON.parse(sp);
+    var ss=localStorage.getItem('lhq-s');
+    banner('✅ Loaded — last saved '+new Date(ss).toLocaleString('en-NZ'));
+  }else{
+    tasks=JSON.parse(JSON.stringify(IT));
+    dnotes=JSON.parse(JSON.stringify(IN));
+  }
+}catch(e){
+  tasks=JSON.parse(JSON.stringify(IT));
+  dnotes=JSON.parse(JSON.stringify(IN));
+}
+render();
+</script>
+</body>
+</html>
