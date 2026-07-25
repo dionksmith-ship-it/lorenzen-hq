@@ -169,12 +169,13 @@ var IN=[
 
 function td(){return new Date().toISOString().split('T')[0];}
 function daysTo(d){if(!d)return null;return Math.ceil((new Date(d)-new Date(td()))/86400000);}
-function fmtD(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short'}):''}
+function addDays(d,n){var dt=d?new Date(d):new Date(td());dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
 
-function dpill(d){
+function dpill(d,label){
+  label=label||'Due';
   var n=daysTo(d);if(n===null||!d)return '';
   var c=n<0?'#E53E3E':n===0?'#E53E3E':n<=7?'#ED8936':'#ECC94B';
-  var l=n<0?('Overdue '+Math.abs(n)+'d'):n===0?'Due TODAY':('Due '+fmtD(d)+' (in '+n+'d)');
+  var l=n<0?('Overdue '+Math.abs(n)+'d'):n===0?(label+' TODAY'):(label+' in '+n+'d');
   return '<span class="dp" style="background:'+c+'22;color:'+c+'">'+l+'</span>';
 }
 function chip(lbl,col){return '<span class="chip" style="background:'+col+'22;color:'+col+'">'+lbl+'</span>';}
@@ -185,6 +186,23 @@ function renum(list){
     if(t.done)return Object.assign({},t,{order:999});
     c[t.priority]=(c[t.priority]||0)+1;
     return Object.assign({},t,{order:c[t.priority]});
+  });
+}
+
+// Ensures no task is ever left without a due date:
+// - a collect task's due is always 7 days after its source invoice's due
+// - everything else falls back to 3 days after it was added
+function backfillDue(list){
+  var byId={};list.forEach(function(t){byId[t.id]=t;});
+  return list.map(function(t){
+    if(t.due)return t;
+    var due;
+    if(t.collectFor&&byId[t.collectFor]&&byId[t.collectFor].due){
+      due=addDays(byId[t.collectFor].due,7);
+    }else{
+      due=addDays(t.added||td(),3);
+    }
+    return Object.assign({},t,{due:due});
   });
 }
 
@@ -219,7 +237,7 @@ function sync(){
     var p=localStorage.getItem('lhq-p');
     var s=localStorage.getItem('lhq-s');
     if(t){
-      tasks=JSON.parse(t);
+      tasks=backfillDue(JSON.parse(t));
       if(n)dnotes=JSON.parse(n);
       if(p)pnotes=JSON.parse(p);
       banner('✅ Loaded — saved '+new Date(s).toLocaleString('en-NZ'));
@@ -252,7 +270,8 @@ function togglePaid(id){
         title:'Collect items — '+ref,
         priority:'today',
         cat:'Bills & Finance',
-        due:td(),
+        due:addDays(t.due||td(),7),
+        added:td(),
         done:false,dd:'',order:999,
         accountName:t.accountName||'',
         accountNo:t.accountNo||'',
@@ -286,7 +305,8 @@ function addT(p){
   var ci=document.getElementById('ac-'+p);
   var di=document.getElementById('ad-'+p);
   var ttl=(ti?ti.value:'').trim();if(!ttl)return;
-  var nt={id:Date.now(),title:ttl,priority:p,cat:ci?ci.value:'General',due:di?di.value:'',done:false,dd:'',order:999,accountName:'',accountNo:'',invoiceNo:'',amount:'',paid:false,collected:false};
+  var stated=di?di.value:'';
+  var nt={id:Date.now(),title:ttl,priority:p,cat:ci?ci.value:'General',due:stated||addDays(td(),3),added:td(),done:false,dd:'',order:999,accountName:'',accountNo:'',invoiceNo:'',amount:'',paid:false,collected:false};
   tasks=renum(tasks.concat([nt]));
   if(ti)ti.value='';if(di)di.value='';
   sched();render();
@@ -307,7 +327,7 @@ function openEdit(id){
 }
 function saveEdit(){
   if(!eid)return;
-  tasks=renum(tasks.map(function(t){
+  tasks=backfillDue(renum(tasks.map(function(t){
     return t.id===eid?Object.assign({},t,{
       title:document.getElementById('et').value,
       priority:document.getElementById('ep').value,
@@ -318,7 +338,7 @@ function saveEdit(){
       invoiceNo:document.getElementById('ei').value,
       amount:document.getElementById('em2').value
     }):t;
-  }));
+  })));
   closeModal();sched();render();
 }
 function delTask(){if(!eid)return;tasks=renum(tasks.filter(function(t){return t.id!==eid;}));closeModal();sched();render();}
@@ -360,7 +380,7 @@ function trow(t){
     '<div class="tc" onclick="toggleT('+t.id+')">'+
       '<div class="tt'+(t.done?' done-text':'')+(t.done?' style="text-decoration:line-through;color:#718096"':'')+'">'+t.title+'</div>'+
       bd+
-      '<div class="tmeta">'+(t.due?dpill(t.due):'')+
+      '<div class="tmeta">'+(t.due?dpill(t.due,isCol?'Collect by':'Due'):'')+
         (t.cat?'<span class="chip" style="background:#1E2333;color:#A0AEC0">'+t.cat+'</span>':'')+
         (t.done&&t.dd?'<span style="font-size:10px;color:#718096">&#10003; '+t.dd+'</span>':'')+
       '</div>'+ab+
@@ -520,18 +540,18 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()
 try{
   var st=localStorage.getItem('lhq-t');
   if(st){
-    tasks=JSON.parse(st);
+    tasks=backfillDue(JSON.parse(st));
     var sn=localStorage.getItem('lhq-n');var sp=localStorage.getItem('lhq-p');
     if(sn)dnotes=JSON.parse(sn);else dnotes=JSON.parse(JSON.stringify(IN));
     if(sp)pnotes=JSON.parse(sp);
     var ss=localStorage.getItem('lhq-s');
     banner('✅ Loaded — last saved '+new Date(ss).toLocaleString('en-NZ'));
   }else{
-    tasks=JSON.parse(JSON.stringify(IT));
+    tasks=backfillDue(JSON.parse(JSON.stringify(IT)));
     dnotes=JSON.parse(JSON.stringify(IN));
   }
 }catch(e){
-  tasks=JSON.parse(JSON.stringify(IT));
+  tasks=backfillDue(JSON.parse(JSON.stringify(IT)));
   dnotes=JSON.parse(JSON.stringify(IN));
 }
 render();
