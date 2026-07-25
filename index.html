@@ -127,38 +127,38 @@ var PL={urgent:'🔴 Urgent',today:'🟠 Today',week:'🟡 This Week',month:'�
 var CATS=['Bills & Finance','Household','DIY','Appointments & Health','Shopping & Errands','Car Projects','Sell / List','Travel & Events','General'];
 
 var IT=[
-  {id:2,title:"Invoice $457.28 — confirm paid",priority:"urgent",due:"2026-07-22",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"All About Auctions",accountNo:"",invoiceNo:"",amount:"457.28",invoiceDate:"2026-07-19",paid:false,collected:false},
-  {id:3,title:"July statement — review",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Direct Tech",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:4,title:"Policy amendment MOTA02578930 — check what changed",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"AMI",accountNo:"MOTA02578930",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:5,title:"Doctor appointment — foot/heel injury",priority:"urgent",due:"",cat:"Appointments & Health",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:6,title:"Washing in",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:7,title:"Washing out",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:8,title:"Fold washing",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:7,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:9,title:"Bill — pay before due date",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"One NZ",accountNo:"447660288",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:10,title:"Pay ASAP",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133147-051-01",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:44,title:"Pay invoice",priority:"today",due:"2026-07-26",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133146-060-03",amount:"",invoiceDate:"2026-07-23",paid:false,collected:false},
-  {id:11,title:"Bill — confirm paid",priority:"today",due:"2026-07-15",cat:"Bills & Finance",done:false,dd:"",order:4,accountName:"2 Degrees",accountNo:"",invoiceNo:"19402725",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:12,title:"Chartwell key guy — WPN8, HUC206, YS4600 + fobs",priority:"week",due:"",cat:"Car Projects",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:13,title:"Van Ameyde insurance claim — email Kingston story/pics",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:14,title:"Vero/Tania insurance claim — dispute email + valuation",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:15,title:"Register Jonty — Rotorua basketball tournament",priority:"week",due:"",cat:"General",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:16,title:"Switch Casabella: One NZ ($70) to 2 Degrees ($35)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:17,title:"Air NZ booking ref 4YZ7SH — confirm itinerary",priority:"week",due:"",cat:"Travel & Events",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:18,title:"House & Contents — review policy",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:7,accountName:"AMI",accountNo:"HOMA02566246",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:19,title:"Kiwibank statement July — review online",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:8,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:20,title:"Morgan Stanley statement (acct x8795)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:9,accountName:"E*TRADE",accountNo:"x8795",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:45,title:"Pay invoice",priority:"week",due:"2026-07-17",cat:"Bills & Finance",done:false,dd:"",order:10,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133145-041-05",amount:"",invoiceDate:"2026-07-14",paid:false,collected:false},
-  {id:46,title:"Pay invoice",priority:"week",due:"2026-07-10",cat:"Bills & Finance",done:false,dd:"",order:11,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133144-012-02",amount:"",invoiceDate:"2026-07-07",paid:false,collected:false},
-  {id:47,title:"Pay invoice",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:12,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133137-021-04",amount:"",invoiceDate:"2026-06-30",paid:false,collected:false},
-  {id:48,title:"Pay invoice",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:13,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133132-004-02",amount:"",invoiceDate:"2026-06-30",paid:false,collected:false},
-  {id:21,title:"WOW tickets — book Wed/Thu show Sep/Oct",priority:"month",due:"2026-08-15",cat:"Travel & Events",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:22,title:"WOW accommodation — Museum Hotel Wellington",priority:"month",due:"",cat:"Travel & Events",done:false,dd:"",order:2,accountName:"Museum Hotel",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:23,title:"Laundry reno — get quotes",priority:"month",due:"",cat:"DIY",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:24,title:"WPN8 transmission service $500",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:25,title:"WPN8 front brake rotors and pads $720",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:39,title:"$170 — due 20 Aug",priority:"low",due:"2026-08-20",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"3 Guys Gas",accountNo:"",invoiceNo:"",amount:"170",invoiceDate:"",paid:false,collected:false},
-  {id:40,title:"WPN8 respray matte black $1,650 August",priority:"low",due:"2026-08-01",cat:"Car Projects",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",paid:false,collected:false},
-  {id:41,title:"Gumboot Rally — confirm dates and budget $1,000",priority:"low",due:"",cat:"Travel & Events",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",invoiceDate:"",amount:"",paid:false,collected:false}
+  {id:2,title:"Invoice $457.28 — confirm paid",priority:"urgent",due:"2026-07-22",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"All About Auctions",accountNo:"",invoiceNo:"",amount:"457.28",invoiceDate:"2026-07-19",dueSet:true,paid:false,collected:false},
+  {id:3,title:"July statement — review",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Direct Tech",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:4,title:"Policy amendment MOTA02578930 — check what changed",priority:"urgent",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"AMI",accountNo:"MOTA02578930",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:5,title:"Doctor appointment — foot/heel injury",priority:"urgent",due:"",cat:"Appointments & Health",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:6,title:"Washing in",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:7,title:"Washing out",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:8,title:"Fold washing",priority:"urgent",due:"",cat:"Household",done:false,dd:"",order:7,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:9,title:"Bill — pay before due date",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"One NZ",accountNo:"447660288",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:10,title:"Pay ASAP",priority:"today",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133147-051-01",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:44,title:"Pay invoice",priority:"today",due:"2026-07-26",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133146-060-03",amount:"",invoiceDate:"2026-07-23",dueSet:true,paid:false,collected:false},
+  {id:11,title:"Bill — confirm paid",priority:"today",due:"2026-07-15",cat:"Bills & Finance",done:false,dd:"",order:4,accountName:"2 Degrees",accountNo:"",invoiceNo:"19402725",amount:"",invoiceDate:"",dueSet:true,paid:false,collected:false},
+  {id:12,title:"Chartwell key guy — WPN8, HUC206, YS4600 + fobs",priority:"week",due:"",cat:"Car Projects",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:13,title:"Van Ameyde insurance claim — email Kingston story/pics",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:14,title:"Vero/Tania insurance claim — dispute email + valuation",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:15,title:"Register Jonty — Rotorua basketball tournament",priority:"week",due:"",cat:"General",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:16,title:"Switch Casabella: One NZ ($70) to 2 Degrees ($35)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:17,title:"Air NZ booking ref 4YZ7SH — confirm itinerary",priority:"week",due:"",cat:"Travel & Events",done:false,dd:"",order:6,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:18,title:"House & Contents — review policy",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:7,accountName:"AMI",accountNo:"HOMA02566246",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:19,title:"Kiwibank statement July — review online",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:8,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:20,title:"Morgan Stanley statement (acct x8795)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:9,accountName:"E*TRADE",accountNo:"x8795",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:45,title:"Pay invoice",priority:"week",due:"2026-07-17",cat:"Bills & Finance",done:false,dd:"",order:10,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133145-041-05",amount:"",invoiceDate:"2026-07-14",dueSet:true,paid:false,collected:false},
+  {id:46,title:"Pay invoice",priority:"week",due:"2026-07-10",cat:"Bills & Finance",done:false,dd:"",order:11,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133144-012-02",amount:"",invoiceDate:"2026-07-07",dueSet:true,paid:false,collected:false},
+  {id:47,title:"Pay invoice",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:12,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133137-021-04",amount:"",invoiceDate:"2026-06-30",dueSet:true,paid:false,collected:false},
+  {id:48,title:"Pay invoice",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:13,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133132-004-02",amount:"",invoiceDate:"2026-06-30",dueSet:true,paid:false,collected:false},
+  {id:21,title:"WOW tickets — book Wed/Thu show Sep/Oct",priority:"month",due:"2026-08-15",cat:"Travel & Events",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:true,paid:false,collected:false},
+  {id:22,title:"WOW accommodation — Museum Hotel Wellington",priority:"month",due:"",cat:"Travel & Events",done:false,dd:"",order:2,accountName:"Museum Hotel",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:23,title:"Laundry reno — get quotes",priority:"month",due:"",cat:"DIY",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:24,title:"WPN8 transmission service $500",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:4,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:25,title:"WPN8 front brake rotors and pads $720",priority:"month",due:"",cat:"Car Projects",done:false,dd:"",order:5,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:false,paid:false,collected:false},
+  {id:39,title:"$170 — due 20 Aug",priority:"low",due:"2026-08-20",cat:"Bills & Finance",done:false,dd:"",order:1,accountName:"3 Guys Gas",accountNo:"",invoiceNo:"",amount:"170",invoiceDate:"",dueSet:true,paid:false,collected:false},
+  {id:40,title:"WPN8 respray matte black $1,650 August",priority:"low",due:"2026-08-01",cat:"Car Projects",done:false,dd:"",order:2,accountName:"",accountNo:"",invoiceNo:"",amount:"",invoiceDate:"",dueSet:true,paid:false,collected:false},
+  {id:41,title:"Gumboot Rally — confirm dates and budget $1,000",priority:"low",due:"",cat:"Travel & Events",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",invoiceDate:"",amount:"",dueSet:false,paid:false,collected:false}
 ];
 
 var IN=[
@@ -175,7 +175,8 @@ function daysTo(d){if(!d)return null;return Math.ceil((new Date(d)-new Date(td()
 function addDays(d,n){var dt=d?new Date(d):new Date(td());dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
 function fmtD(d){return d?new Date(d).toLocaleDateString('en-NZ',{day:'numeric',month:'short'}):'';}
 
-function dpill(d,label){
+function dpill(d,dueSet,label){
+  if(!dueSet)return '<span class="dp" style="background:#71809622;color:#718096">No due date set</span>';
   label=label||'Due';
   var n=daysTo(d);if(n===null||!d)return '';
   var c=n<0?'#E53E3E':n===0?'#E53E3E':n<=7?'#ED8936':'#ECC94B';
@@ -193,23 +194,28 @@ function renum(list){
   });
 }
 
-// Ensures no task is ever left without a due date:
-// - a collect task's due is always 7 days after its source invoice's due
-// - otherwise, 3 days after the invoice date if one was given
-// - otherwise, 3 days after the task was added
+// Ensures no task is ever left without a due value to sort/calculate by, while
+// tracking dueSet so the UI only ever presents a REAL due date to the user:
+// - dueSet=true when due was explicitly stated, derived from a stated invoiceDate
+//   (+3 days), or derived from a source invoice's own real due date (+7 days)
+// - dueSet=false when there's nothing real to go on, so due falls back to
+//   3 days after the task was added — an internal sort key only, never shown as real
 function backfillDue(list){
   var byId={};list.forEach(function(t){byId[t.id]=t;});
   return list.map(function(t){
-    if(t.due)return t;
-    var due;
+    if(t.due)return t.dueSet===undefined?Object.assign({},t,{dueSet:true}):t;
+    var due,dueSet;
     if(t.collectFor&&byId[t.collectFor]&&byId[t.collectFor].due){
       due=addDays(byId[t.collectFor].due,7);
+      dueSet=!!byId[t.collectFor].dueSet;
     }else if(t.invoiceDate){
       due=addDays(t.invoiceDate,3);
+      dueSet=true;
     }else{
       due=addDays(t.added||td(),3);
+      dueSet=false;
     }
-    return Object.assign({},t,{due:due});
+    return Object.assign({},t,{due:due,dueSet:dueSet});
   });
 }
 
@@ -280,6 +286,7 @@ function togglePaid(id){
         priority:'today',
         cat:'Bills & Finance',
         due:addDays(t.due||td(),7),
+        dueSet:!!t.dueSet,
         added:td(),
         done:false,dd:'',order:999,
         accountName:t.accountName||'',
@@ -316,7 +323,7 @@ function addT(p){
   var di=document.getElementById('ad-'+p);
   var ttl=(ti?ti.value:'').trim();if(!ttl)return;
   var stated=di?di.value:'';
-  var nt={id:Date.now(),title:ttl,priority:p,cat:ci?ci.value:'General',due:stated||addDays(td(),3),added:td(),done:false,dd:'',order:999,accountName:'',accountNo:'',invoiceNo:'',invoiceDate:'',amount:'',paid:false,collected:false};
+  var nt={id:Date.now(),title:ttl,priority:p,cat:ci?ci.value:'General',due:stated||addDays(td(),3),dueSet:!!stated,added:td(),done:false,dd:'',order:999,accountName:'',accountNo:'',invoiceNo:'',invoiceDate:'',amount:'',paid:false,collected:false};
   tasks=renum(tasks.concat([nt]));
   if(ti)ti.value='';if(di)di.value='';
   sched();render();
@@ -338,13 +345,15 @@ function openEdit(id){
 }
 function saveEdit(){
   if(!eid)return;
+  var dueVal=document.getElementById('ed').value;
   tasks=backfillDue(renum(tasks.map(function(t){
     return t.id===eid?Object.assign({},t,{
       title:document.getElementById('et').value,
       priority:document.getElementById('ep').value,
       cat:document.getElementById('ec').value,
       invoiceDate:document.getElementById('eidate').value,
-      due:document.getElementById('ed').value,
+      due:dueVal,
+      dueSet:!!dueVal,
       accountName:document.getElementById('ea').value,
       accountNo:document.getElementById('en2').value,
       invoiceNo:document.getElementById('ei').value,
@@ -393,7 +402,7 @@ function trow(t){
     '<div class="tc" onclick="toggleT('+t.id+')">'+
       '<div class="tt'+(t.done?' done-text':'')+'"'+(t.done?' style="text-decoration:line-through;color:#718096"':'')+'>'+t.title+'</div>'+
       bd+
-      '<div class="tmeta">'+(t.due?dpill(t.due,isCol?'Collect by':'Due'):'')+
+      '<div class="tmeta">'+dpill(t.due,t.dueSet,isCol?'Collect by':'Due')+
         (t.cat?'<span class="chip" style="background:#1E2333;color:#A0AEC0">'+t.cat+'</span>':'')+
         (t.done&&t.dd?'<span style="font-size:10px;color:#718096">&#10003; '+t.dd+'</span>':'')+
       '</div>'+ab+
