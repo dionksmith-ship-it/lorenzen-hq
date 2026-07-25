@@ -144,10 +144,10 @@ var IT=[
   {id:18,title:"AMI House & Contents — review policy",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:7,accountName:"AMI",accountNo:"HOMA02566246",invoiceNo:"",amount:"",paid:false,collected:false},
   {id:19,title:"Kiwibank statement July — review online",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:8,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
   {id:20,title:"E*TRADE/Morgan Stanley statement (acct x8795)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:9,accountName:"E*TRADE",accountNo:"x8795",invoiceNo:"",amount:"",paid:false,collected:false},
-  {id:45,title:"Thornton Auctions — invoice #133145-041-05 (14 Jul)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:10,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133145-041-05",amount:"",paid:false,collected:false},
-  {id:46,title:"Thornton Auctions — invoice #133144-012-02 (7 Jul)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:11,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133144-012-02",amount:"",paid:false,collected:false},
-  {id:47,title:"Thornton Auctions — invoice #133137-021-04 (30 Jun)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:12,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133137-021-04",amount:"",paid:false,collected:false},
-  {id:48,title:"Thornton Auctions — invoice #133132-004-02 (30 Jun)",priority:"week",due:"",cat:"Bills & Finance",done:false,dd:"",order:13,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133132-004-02",amount:"",paid:false,collected:false},
+  {id:45,title:"Thornton Auctions — invoice #133145-041-05 (14 Jul)",priority:"week",due:"2026-07-17",cat:"Bills & Finance",done:false,dd:"",order:10,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133145-041-05",amount:"",paid:false,collected:false},
+  {id:46,title:"Thornton Auctions — invoice #133144-012-02 (7 Jul)",priority:"week",due:"2026-07-10",cat:"Bills & Finance",done:false,dd:"",order:11,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133144-012-02",amount:"",paid:false,collected:false},
+  {id:47,title:"Thornton Auctions — invoice #133137-021-04 (30 Jun)",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:12,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133137-021-04",amount:"",paid:false,collected:false},
+  {id:48,title:"Thornton Auctions — invoice #133132-004-02 (30 Jun)",priority:"week",due:"2026-07-03",cat:"Bills & Finance",done:false,dd:"",order:13,accountName:"Thornton Auctions",accountNo:"",invoiceNo:"133132-004-02",amount:"",paid:false,collected:false},
   {id:21,title:"WOW tickets — book Wed/Thu show Sep/Oct",priority:"month",due:"2026-08-15",cat:"Travel & Events",done:false,dd:"",order:1,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
   {id:22,title:"WOW accommodation — Museum Hotel Wellington",priority:"month",due:"",cat:"Travel & Events",done:false,dd:"",order:2,accountName:"Museum Hotel",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
   {id:23,title:"Laundry reno — get quotes",priority:"month",due:"",cat:"DIY",done:false,dd:"",order:3,accountName:"",accountNo:"",invoiceNo:"",amount:"",paid:false,collected:false},
@@ -378,7 +378,7 @@ function trow(t){
     '<div class="mv">'+(t.done?'<span style="width:28px;display:inline-block"></span>':'<button onclick="mv('+t.id+',-1)">▲</button><button onclick="mv('+t.id+',1)">▼</button>')+'</div>'+
     (!t.done?'<span class="tnum" style="color:'+pc+'">'+t.order+'</span>':'')+
     '<div class="tc" onclick="toggleT('+t.id+')">'+
-      '<div class="tt'+(t.done?' done-text':'')+(t.done?' style="text-decoration:line-through;color:#718096"':'')+'">'+t.title+'</div>'+
+      '<div class="tt'+(t.done?' done-text':'')+'"'+(t.done?' style="text-decoration:line-through;color:#718096"':'')+'>'+t.title+'</div>'+
       bd+
       '<div class="tmeta">'+(t.due?dpill(t.due,isCol?'Collect by':'Due'):'')+
         (t.cat?'<span class="chip" style="background:#1E2333;color:#A0AEC0">'+t.cat+'</span>':'')+
