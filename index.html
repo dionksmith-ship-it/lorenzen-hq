@@ -242,14 +242,14 @@ function togglePaid(id){
   var nowPaid=!t.paid;
   tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{paid:nowPaid}):x;});
   // When marking as paid, auto-create a collection task if not already there
-  if(nowPaid){
-    var ref=t.invoiceNo||t.accountName||t.title;
-    var colTitle='Collect items — '+ref;
-    var alreadyExists=tasks.some(function(x){return x.title===colTitle;});
+  // (skip if this task IS itself an auto-created collection task)
+  if(nowPaid&&!t.collectFor){
+    var alreadyExists=tasks.some(function(x){return x.collectFor===id;});
     if(!alreadyExists){
+      var ref=t.invoiceNo||t.accountName||t.title;
       var newTask={
         id:Date.now(),
-        title:colTitle,
+        title:'Collect items — '+ref,
         priority:'today',
         cat:'Bills & Finance',
         due:td(),
@@ -258,7 +258,8 @@ function togglePaid(id){
         accountNo:t.accountNo||'',
         invoiceNo:t.invoiceNo||'',
         amount:t.amount||'',
-        paid:false,collected:false
+        paid:false,collected:false,
+        collectFor:id
       };
       tasks=renum(tasks.concat([newTask]));
     }
