@@ -240,7 +240,7 @@ function togglePaid(id){
   var t=tasks.find(function(x){return x.id===id;});
   if(!t) return;
   var nowPaid=!t.paid;
-  tasks=tasks.map(function(x){return x.id===id?Object.assign({},x,{paid:nowPaid}):x;});
+  tasks=renum(tasks.map(function(x){return x.id===id?Object.assign({},x,{paid:nowPaid,done:nowPaid,dd:nowPaid?td():''}):x;}));
   // When marking as paid, auto-create a collection task if not already there
   // (skip if this task IS itself an auto-created collection task)
   if(nowPaid&&!t.collectFor){
@@ -266,7 +266,10 @@ function togglePaid(id){
   }
   sched();render();
 }
-function toggleCol(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{collected:!t.collected}):t;});sched();render();}
+function toggleCol(id){
+  tasks=renum(tasks.map(function(t){return t.id===id?Object.assign({},t,{collected:!t.collected,done:!t.collected,dd:!t.collected?td():''}):t;}));
+  sched();render();
+}
 
 function mv(id,dir){
   var t=tasks.find(function(x){return x.id===id;});if(!t||t.done)return;
@@ -332,17 +335,23 @@ function trow(t){
        (t.amount?'<span style="color:#68D391;font-weight:700">$'+t.amount+'</span>':'')+
        '</div>';
   }
+  var isCol=!!t.collectFor;
   var ab='';
-  if(isA&&!t.done){
+  if(isA&&!isCol&&!t.done){
     ab='<div class="ab">'+
       '<button onclick="event.stopPropagation();togglePaid('+t.id+')" style="background:'+(t.paid?'rgba(104,211,145,0.2)':'#20253A')+';color:'+(t.paid?'#68D391':'#718096')+'">'+(t.paid?'✅ Paid':'⬜ Paid')+'</button>'+
+      '</div>';
+  } else if(isA&&!isCol&&t.done&&t.paid){
+    ab='<div style="display:flex;gap:6px;margin-top:4px">'+
+      '<span style="font-size:10px;font-weight:700;background:rgba(104,211,145,0.2);color:#68D391;border-radius:4px;padding:2px 7px">✅ Paid</span>'+
+      '</div>';
+  } else if(isA&&isCol&&!t.done){
+    ab='<div class="ab">'+
       '<button onclick="event.stopPropagation();toggleCol('+t.id+')" style="background:'+(t.collected?'rgba(99,179,237,0.2)':'#20253A')+';color:'+(t.collected?'#63B3ED':'#718096')+'">'+(t.collected?'📦 Collected':'⬜ Collected')+'</button>'+
       '</div>';
-  } else if(isA&&t.done){
-    // Show status summary only when done
+  } else if(isA&&isCol&&t.done&&t.collected){
     ab='<div style="display:flex;gap:6px;margin-top:4px">'+
-      (t.paid?'<span style="font-size:10px;font-weight:700;background:rgba(104,211,145,0.2);color:#68D391;border-radius:4px;padding:2px 7px">✅ Paid</span>':'')+
-      (t.collected?'<span style="font-size:10px;font-weight:700;background:rgba(99,179,237,0.2);color:#63B3ED;border-radius:4px;padding:2px 7px">📦 Collected</span>':'')+
+      '<span style="font-size:10px;font-weight:700;background:rgba(99,179,237,0.2);color:#63B3ED;border-radius:4px;padding:2px 7px">📦 Collected</span>'+
       '</div>';
   }
   return '<div class="tr'+(t.done?' done':'')+'" style="border-left:3px solid '+(t.done?'#68D391':pc)+';background:'+(t.done?'rgba(104,211,145,0.05)':'rgba(0,0,0,0.15)')+'">'+
