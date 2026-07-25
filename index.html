@@ -73,6 +73,8 @@ input:focus,select:focus{border-color:#63B3ED;}
     <span class="chip" id="dc" style="display:none;background:rgba(104,211,145,0.2);color:#68D391;"></span>
     <button class="btn btn-green btn-sm" onclick="save()">💾 Save</button>
     <button class="btn btn-surf btn-sm" onclick="sync()">🔄 Sync</button>
+    <button class="btn btn-surf btn-sm" onclick="syncCalendar()">🗓️ Sync Calendar</button>
+    <button class="btn btn-surf btn-sm" onclick="setCalUrl()" title="Change calendar link">⚙️</button>
   </div>
 </div>
 <div id="banner"></div>
@@ -259,6 +261,82 @@ function sync(){
       banner('No saved data found','#ED8936');
     }
   }catch(e){banner('⚠️ Could not load saved data','#ED8936');}
+}
+
+// Google Calendar's "secret address in iCal format" has no CORS headers, so a
+// public proxy re-serves it with permissive headers for the browser fetch to work.
+var CAL_PROXY='https://api.allorigins.win/raw?url=';
+
+function setCalUrl(){
+  var existing=localStorage.getItem('lhq-cal-url')||'';
+  var url=prompt('Paste your Google Calendar secret iCal URL\n(Calendar Settings → Integrate calendar → Secret address in iCal format):',existing);
+  if(url===null)return;
+  if(!url.trim()){localStorage.removeItem('lhq-cal-url');banner('Calendar link cleared');return;}
+  localStorage.setItem('lhq-cal-url',url.trim());
+  banner('✅ Calendar link saved');
+}
+
+function parseICS(text){
+  var lines=text.split(/\r\n|\n|\r/);
+  var unfolded=[];
+  lines.forEach(function(line){
+    if((line[0]===' '||line[0]==='\t')&&unfolded.length){
+      unfolded[unfolded.length-1]+=line.slice(1);
+    }else{
+      unfolded.push(line);
+    }
+  });
+  var events=[];var cur=null;
+  unfolded.forEach(function(line){
+    if(line==='BEGIN:VEVENT'){cur={uid:'',title:'',date:''};}
+    else if(line==='END:VEVENT'){if(cur&&cur.uid&&cur.date)events.push(cur);cur=null;}
+    else if(cur){
+      var m=line.match(/^([A-Z-]+)(;[^:]*)?:(.*)$/);
+      if(!m)return;
+      var key=m[1],val=m[3];
+      if(key==='UID')cur.uid=val;
+      else if(key==='SUMMARY')cur.title=val.replace(/\\,/g,',').replace(/\\n/gi,' ').replace(/\\\\/g,'\\');
+      else if(key==='DTSTART'){
+        var d=val.match(/(\d{4})(\d{2})(\d{2})/);
+        if(d)cur.date=d[1]+'-'+d[2]+'-'+d[3];
+      }
+    }
+  });
+  return events;
+}
+
+// Pulls this week's events in directly (no draft/review step) since each import
+// is tagged with calEventUid, so re-syncing never creates duplicate tasks.
+function importCalEvents(events){
+  var seen={};tasks.forEach(function(t){if(t.calEventUid)seen[t.calEventUid]=true;});
+  var start=td();var end=addDays(start,7);
+  var fresh=events.filter(function(e){return e.date>=start&&e.date<=end&&!seen[e.uid];});
+  if(!fresh.length){banner('🗓️ No new events this week');return;}
+  var nt=fresh.map(function(e,i){
+    return {
+      id:Date.now()+i,title:e.title,priority:e.date===start?'today':'week',cat:'General',
+      due:e.date,dueSet:true,added:start,done:false,dd:'',order:999,
+      accountName:'',accountNo:'',invoiceNo:'',invoiceDate:'',amount:'',
+      paid:false,collected:false,calEventUid:e.uid
+    };
+  });
+  tasks=renum(tasks.concat(nt));
+  sched();render();
+  banner('🗓️ Added '+nt.length+' calendar event'+(nt.length!==1?'s':''));
+}
+
+function syncCalendar(){
+  var url=localStorage.getItem('lhq-cal-url');
+  if(!url){setCalUrl();url=localStorage.getItem('lhq-cal-url');if(!url)return;}
+  banner('🗓️ Fetching calendar…','#63B3ED');
+  fetch(CAL_PROXY+encodeURIComponent(url)).then(function(r){
+    if(!r.ok)throw new Error('fetch failed');
+    return r.text();
+  }).then(function(icsText){
+    importCalEvents(parseICS(icsText));
+  }).catch(function(){
+    banner('⚠️ Calendar sync failed — check the link (⚙️) and try again','#E53E3E');
+  });
 }
 
 function sched(){clearTimeout(stimer);stimer=setTimeout(save,1500);}
